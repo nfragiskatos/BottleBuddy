@@ -24,11 +24,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.nicholasfragiskatos.feedme.ui.screens.EditScreen
+import com.nicholasfragiskatos.feedme.ui.screens.edit.EditScreen
 import com.nicholasfragiskatos.feedme.ui.screens.HomeScreen
 import com.nicholasfragiskatos.feedme.ui.screens.NavigationItem
 import com.nicholasfragiskatos.feedme.ui.theme.FeedMeTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,7 +73,7 @@ class MainActivity : ComponentActivity() {
                         ) {
                             NavHost(
                                 navController = navController,
-                                startDestination = NavigationItem.Home.route,
+                                startDestination = NavigationItem.Edit.route,
                             ) {
                                 composable(route = NavigationItem.Home.route) {
                                     HomeScreen()

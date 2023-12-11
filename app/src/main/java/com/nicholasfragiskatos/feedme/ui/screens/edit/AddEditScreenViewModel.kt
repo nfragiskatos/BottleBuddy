@@ -1,22 +1,25 @@
 package com.nicholasfragiskatos.feedme.ui.screens.edit
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.nicholasfragiskatos.feedme.FeedMeApplication
-import com.nicholasfragiskatos.feedme.data.local.FeedingDao
+import com.nicholasfragiskatos.feedme.data.local.FeedMeDatabase
 import com.nicholasfragiskatos.feedme.data.mapper.toFeedingEntity
 import com.nicholasfragiskatos.feedme.domain.Feeding
 import com.nicholasfragiskatos.feedme.domain.UnitOfMeasurement
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
+import javax.inject.Inject
 
-class AddEditScreenViewModel(val dao: FeedingDao) : ViewModel() {
+@HiltViewModel
+class AddEditScreenViewModel @Inject constructor(
+    val db: FeedMeDatabase,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
     private val _date = MutableStateFlow(Date())
     val date: StateFlow<Date> = _date
@@ -38,9 +41,9 @@ class AddEditScreenViewModel(val dao: FeedingDao) : ViewModel() {
                 date = date.value,
                 quantity = quantity.value.toDouble(),
                 unit = units.value,
-                notes = notes.value
+                notes = notes.value,
             )
-            dao.saveFeeding(toSave.toFeedingEntity())
+            db.feedingDao().saveFeeding(toSave.toFeedingEntity())
         }
     }
 
@@ -49,24 +52,17 @@ class AddEditScreenViewModel(val dao: FeedingDao) : ViewModel() {
             is AddEditFeedingEvent.ChangeDate -> {
                 _date.value = event.date
             }
+
             is AddEditFeedingEvent.ChangeNote -> {
                 _notes.value = event.notes
             }
+
             is AddEditFeedingEvent.ChangeQuantity -> {
                 _quantity.value = event.quantity
             }
+
             is AddEditFeedingEvent.ChangeUnits -> {
                 _units.value = event.units
-            }
-        }
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val database =
-                    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as FeedMeApplication).database
-                AddEditScreenViewModel(database.feedingDao())
             }
         }
     }

@@ -24,16 +24,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.nicholasfragiskatos.feedme.domain.UnitOfMeasurement
 
 @Composable
-fun EditScreen(feedId: Int? = null) {
+fun EditScreen(
+    vm: AddEditScreenViewModel = hiltViewModel(),
+) {
     var unitSelected by rememberSaveable {
         mutableStateOf(UnitOfMeasurement.MILLILITER)
     }
-
-    val vm: AddEditScreenViewModel = viewModel(factory = AddEditScreenViewModel.Factory)
 
     val quantity = vm.quantity.collectAsState()
     val notes = vm.notes.collectAsState()

@@ -1,11 +1,7 @@
 package com.nicholasfragiskatos.feedme
 
 import android.app.Application
-import com.nicholasfragiskatos.feedme.data.local.FeedMeDatabase
+import dagger.hilt.android.HiltAndroidApp
 
-class FeedMeApplication : Application() {
-
-    val database by lazy {
-        FeedMeDatabase.getInstance(applicationContext)
-    }
-}
+@HiltAndroidApp
+class FeedMeApplication : Application()

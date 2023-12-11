@@ -9,4 +9,8 @@ import androidx.room.TypeConverters
 abstract class FeedMeDatabase : RoomDatabase() {
 
     abstract fun feedingDao(): FeedingDao
+
+    companion object {
+        const val DATABASE_NAME = "feed_me_db"
+    }
 }
