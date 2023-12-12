@@ -20,13 +20,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.nicholasfragiskatos.feedme.ui.screens.edit.EditScreen
+import androidx.navigation.navArgument
 import com.nicholasfragiskatos.feedme.ui.screens.HomeScreen
 import com.nicholasfragiskatos.feedme.ui.screens.NavigationItem
+import com.nicholasfragiskatos.feedme.ui.screens.edit.EditScreen
 import com.nicholasfragiskatos.feedme.ui.theme.FeedMeTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -73,14 +75,22 @@ class MainActivity : ComponentActivity() {
                         ) {
                             NavHost(
                                 navController = navController,
-                                startDestination = NavigationItem.Edit.route,
+                                startDestination = NavigationItem.Home.route,
                             ) {
                                 composable(route = NavigationItem.Home.route) {
-                                    HomeScreen()
+                                    HomeScreen(navController)
                                     title.value = "Home"
                                 }
-                                composable(route = NavigationItem.Edit.route) {
-                                    EditScreen()
+                                composable(
+                                    route = NavigationItem.Edit.route + "/{feedingId}",
+                                    arguments = listOf(
+                                        navArgument("feedingId") {
+                                            type = NavType.IntType
+                                            defaultValue = -1
+                                        },
+                                    ),
+                                ) {
+                                    EditScreen(navController)
                                     title.value = "Add/Edit"
                                 }
                             }

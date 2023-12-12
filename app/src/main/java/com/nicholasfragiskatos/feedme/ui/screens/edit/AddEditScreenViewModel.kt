@@ -17,9 +17,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditScreenViewModel @Inject constructor(
-    val db: FeedMeDatabase,
-    savedStateHandle: SavedStateHandle
+    private val db: FeedMeDatabase,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
+
+    private val _currentFeedingId = MutableStateFlow(-1)
 
     private val _date = MutableStateFlow(Date())
     val date: StateFlow<Date> = _date
@@ -33,11 +35,25 @@ class AddEditScreenViewModel @Inject constructor(
     private val _notes = MutableStateFlow("")
     val notes: StateFlow<String> = _notes
 
-    private var currentFeedingId: Int? = null
+    init {
+        savedStateHandle.get<Int>("feedingId")?.let { feedingId ->
+
+            if (feedingId != -1) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val feedingEntity = db.feedingDao().getFeedingById(feedingId)
+                    _notes.value = feedingEntity.notes
+                    _quantity.value = feedingEntity.quantity.toString()
+                    _units.value = feedingEntity.unit
+                    _currentFeedingId.value = feedingEntity.id
+                }
+            }
+        }
+    }
 
     fun saveFeeding() {
         viewModelScope.launch(Dispatchers.IO) {
             val toSave = Feeding(
+                id = _currentFeedingId.value,
                 date = date.value,
                 quantity = quantity.value.toDouble(),
                 unit = units.value,

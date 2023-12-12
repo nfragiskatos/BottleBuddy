@@ -8,8 +8,11 @@ import androidx.room.Query
 @Dao
 interface FeedingDao {
     @Query("SELECT * FROM feedingentity")
-    fun getAll(): List<FeedingEntity>
+    suspend fun getAll(): List<FeedingEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveFeeding(feeding: FeedingEntity)
+
+    @Query("SELECT * FROM feedingentity WHERE id = :id")
+    suspend fun getFeedingById(id: Int): FeedingEntity
 }

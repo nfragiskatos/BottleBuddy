@@ -25,18 +25,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.nicholasfragiskatos.feedme.domain.UnitOfMeasurement
 
 @Composable
 fun EditScreen(
+    navController: NavController,
     vm: AddEditScreenViewModel = hiltViewModel(),
 ) {
-    var unitSelected by rememberSaveable {
-        mutableStateOf(UnitOfMeasurement.MILLILITER)
-    }
 
     val quantity = vm.quantity.collectAsState()
     val notes = vm.notes.collectAsState()
+    val units = vm.units.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -61,14 +61,14 @@ fun EditScreen(
                 Row(
                     modifier = Modifier.selectableGroup()
                         .selectable(
-                            selected = (unitSelected == unit),
+                            selected = (units.value == unit),
                             onClick = {
-                                unitSelected = unit
+                                vm.onEvent(AddEditFeedingEvent.ChangeUnits(unit))
                             },
                         )
                         .padding(16.dp),
                 ) {
-                    RadioButton(selected = (unitSelected == unit), onClick = null)
+                    RadioButton(selected = (units.value == unit), onClick = null)
                     Text(
                         text = unit.abbreviation,
                         style = MaterialTheme.typography.bodyLarge,
