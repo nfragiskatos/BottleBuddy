@@ -5,8 +5,9 @@ import com.nicholasfragiskatos.feedme.data.mapper.toFeeding
 import com.nicholasfragiskatos.feedme.data.mapper.toFeedingEntity
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
+import javax.inject.Inject
 
-class FeedingRepositoryImpl(
+class FeedingRepositoryImpl @Inject constructor(
     private val dao: FeedingDao,
 ) : FeedingRepository {
     override suspend fun getFeedingById(id: Int): Feeding? {
