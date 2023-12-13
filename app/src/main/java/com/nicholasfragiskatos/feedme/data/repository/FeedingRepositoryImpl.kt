@@ -5,6 +5,8 @@ import com.nicholasfragiskatos.feedme.data.mapper.toFeeding
 import com.nicholasfragiskatos.feedme.data.mapper.toFeedingEntity
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class FeedingRepositoryImpl @Inject constructor(
@@ -16,5 +18,10 @@ class FeedingRepositoryImpl @Inject constructor(
 
     override suspend fun saveFeeding(feeding: Feeding): Long {
         return dao.saveFeeding(feeding.toFeedingEntity())
+    }
+
+    override fun getFeedings(): Flow<List<Feeding>> {
+        return dao.getFeedings()
+            .map { feedings -> feedings.map { feeding -> feeding.toFeeding() } }
     }
 }

@@ -26,7 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.nicholasfragiskatos.feedme.ui.screens.HomeScreen
+import com.nicholasfragiskatos.feedme.ui.screens.home.FeedingListScreen
 import com.nicholasfragiskatos.feedme.ui.screens.NavigationItem
 import com.nicholasfragiskatos.feedme.ui.screens.edit.EditScreen
 import com.nicholasfragiskatos.feedme.ui.theme.FeedMeTheme
@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                                 startDestination = NavigationItem.Home.route,
                             ) {
                                 composable(route = NavigationItem.Home.route) {
-                                    HomeScreen(navController)
+                                    FeedingListScreen(navController)
                                     title.value = "Home"
                                 }
                                 composable(

@@ -1,10 +1,13 @@
 package com.nicholasfragiskatos.feedme.domain.repository
 
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
+import kotlinx.coroutines.flow.Flow
 
 interface FeedingRepository {
 
     suspend fun getFeedingById(id: Int): Feeding?
 
     suspend fun saveFeeding(feeding: Feeding): Long
+
+    fun getFeedings(): Flow<List<Feeding>>
 }
