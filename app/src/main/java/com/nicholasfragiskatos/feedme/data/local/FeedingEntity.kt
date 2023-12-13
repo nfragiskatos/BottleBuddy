@@ -8,7 +8,7 @@ import java.util.Date
 @Entity
 data class FeedingEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
     val date: Date = Date(),
     val quantity: Double,
     val unit: UnitOfMeasurement,

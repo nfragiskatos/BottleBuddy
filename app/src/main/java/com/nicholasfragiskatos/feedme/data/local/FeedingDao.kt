@@ -11,8 +11,8 @@ interface FeedingDao {
     suspend fun getAll(): List<FeedingEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveFeeding(feeding: FeedingEntity)
+    fun saveFeeding(feeding: FeedingEntity): Long
 
     @Query("SELECT * FROM feedingentity WHERE id = :id")
-    suspend fun getFeedingById(id: Int): FeedingEntity
+    suspend fun getFeedingById(id: Int): FeedingEntity?
 }

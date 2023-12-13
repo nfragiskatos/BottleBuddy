@@ -3,10 +3,9 @@ package com.nicholasfragiskatos.feedme.ui.screens.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nicholasfragiskatos.feedme.data.local.FeedMeDatabase
-import com.nicholasfragiskatos.feedme.data.mapper.toFeedingEntity
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
+import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,11 +16,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditScreenViewModel @Inject constructor(
-    private val db: FeedMeDatabase,
+    private val repository: FeedingRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _currentFeedingId = MutableStateFlow(-1)
+    private val _currentFeedingId = MutableStateFlow(-1L)
 
     private val _date = MutableStateFlow(Date())
     val date: StateFlow<Date> = _date
@@ -40,11 +39,12 @@ class AddEditScreenViewModel @Inject constructor(
 
             if (feedingId != -1) {
                 viewModelScope.launch(Dispatchers.IO) {
-                    val feedingEntity = db.feedingDao().getFeedingById(feedingId)
-                    _notes.value = feedingEntity.notes
-                    _quantity.value = feedingEntity.quantity.toString()
-                    _units.value = feedingEntity.unit
-                    _currentFeedingId.value = feedingEntity.id
+                    repository.getFeedingById(feedingId)?.let { feeding ->
+                        _notes.value = feeding.notes
+                        _quantity.value = feeding.quantity.toString()
+                        _units.value = feeding.unit
+                        _currentFeedingId.value = feeding.id
+                    }
                 }
             }
         }
@@ -59,7 +59,7 @@ class AddEditScreenViewModel @Inject constructor(
                 unit = units.value,
                 notes = notes.value,
             )
-            db.feedingDao().saveFeeding(toSave.toFeedingEntity())
+            repository.saveFeeding(toSave)
         }
     }
 
