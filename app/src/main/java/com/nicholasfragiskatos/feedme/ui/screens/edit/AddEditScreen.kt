@@ -48,7 +48,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nicholasfragiskatos.feedme.R
-import com.nicholasfragiskatos.feedme.domain.UnitOfMeasurement
+import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.utils.convertUtcToLocalDate
 import java.util.Date
 import java.util.Locale

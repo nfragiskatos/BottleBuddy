@@ -2,7 +2,7 @@ package com.nicholasfragiskatos.feedme.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.nicholasfragiskatos.feedme.domain.UnitOfMeasurement
+import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import java.util.Date
 
 @Entity

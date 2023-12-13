@@ -1,6 +1,6 @@
 package com.nicholasfragiskatos.feedme.ui.screens.edit
 
-import com.nicholasfragiskatos.feedme.domain.UnitOfMeasurement
+import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import java.util.Date
 
 sealed class AddEditFeedingEvent {

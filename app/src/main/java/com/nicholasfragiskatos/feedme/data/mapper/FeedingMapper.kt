@@ -1,7 +1,7 @@
 package com.nicholasfragiskatos.feedme.data.mapper
 
 import com.nicholasfragiskatos.feedme.data.local.FeedingEntity
-import com.nicholasfragiskatos.feedme.domain.Feeding
+import com.nicholasfragiskatos.feedme.domain.model.Feeding
 
 fun FeedingEntity.toFeeding(): Feeding {
     return Feeding(

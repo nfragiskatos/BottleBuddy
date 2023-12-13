@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nicholasfragiskatos.feedme.data.local.FeedMeDatabase
 import com.nicholasfragiskatos.feedme.data.mapper.toFeedingEntity
-import com.nicholasfragiskatos.feedme.domain.Feeding
-import com.nicholasfragiskatos.feedme.domain.UnitOfMeasurement
+import com.nicholasfragiskatos.feedme.domain.model.Feeding
+import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

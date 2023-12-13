@@ -1,4 +1,4 @@
-package com.nicholasfragiskatos.feedme.domain
+package com.nicholasfragiskatos.feedme.domain.model
 
 import java.util.Date
 
