@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
                             if (showFab) {
                                 LargeFloatingActionButton(onClick = {
                                     navController.navigate(
-                                        NavigationItem.Edit.route,
+                                        NavigationItem.Edit.buildRoute(-1),
                                     )
                                 }) {
                                     Icon(Icons.Filled.Edit, "Floating action button.")
@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
                                     ),
                                 ) {
                                     EditScreen(navController)
-                                    title.value = "Add/Edit"
+                                    title.value = "Edit"
                                 }
                             }
                         }

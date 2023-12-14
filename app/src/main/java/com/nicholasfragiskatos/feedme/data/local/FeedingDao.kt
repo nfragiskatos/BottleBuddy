@@ -1,6 +1,7 @@
 package com.nicholasfragiskatos.feedme.data.local
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -16,4 +17,7 @@ interface FeedingDao {
 
     @Query("SELECT * FROM feedingentity WHERE id = :id")
     suspend fun getFeedingById(id: Int): FeedingEntity?
+
+    @Delete
+    suspend fun deleteFeeding(feeding: FeedingEntity)
 }

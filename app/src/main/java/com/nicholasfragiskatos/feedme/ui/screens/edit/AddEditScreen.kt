@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -63,8 +64,13 @@ fun EditScreen(
     val notes = vm.notes.collectAsState()
     val units = vm.units.collectAsState()
     val date = vm.date.collectAsState()
+    val feedingDeleted = vm.feedingDeleted.collectAsState()
     val context = LocalContext.current
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+
+    if (feedingDeleted.value) {
+        navController.navigateUp()
+    }
 
     val formattedDate by remember {
         derivedStateOf {
@@ -156,86 +162,105 @@ fun EditScreen(
             }
         }
     }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        TextField(
-            value = formattedDate,
-            onValueChange = {},
-            readOnly = true,
-            trailingIcon = {
-                Row {
-                    IconButton(onClick = {
-                        showDatePicker = true
-                    }) {
-                        Icon(
-                            modifier = Modifier.size(64.dp),
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = "calendar",
-                        )
-                    }
-
-                    IconButton(onClick = {
-                        showTimePicker = true
-                    }) {
-                        Icon(
-                            modifier = Modifier.size(64.dp),
-                            painter = painterResource(id = R.drawable.time_24),
-                            contentDescription = "time",
-                        )
-                    }
-                }
-            },
-        )
-
-        TextField(
-            value = quantity.value,
-            onValueChange = {
-                vm.onEvent(AddEditFeedingEvent.ChangeQuantity(it))
-            },
-            label = { Text(text = "Quantity") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            singleLine = true,
-        )
-
-        Row(
-            modifier = Modifier.selectableGroup(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth().fillMaxHeight(0.9f),
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            UnitOfMeasurement.entries.forEach { unit ->
-                Row(
-                    modifier = Modifier
-                        .selectableGroup()
-                        .selectable(
-                            selected = (units.value == unit),
-                            onClick = {
-                                vm.onEvent(AddEditFeedingEvent.ChangeUnits(unit))
-                            },
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = formattedDate,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = {
+                    Row {
+                        IconButton(onClick = {
+                            showDatePicker = true
+                        }) {
+                            Icon(
+                                modifier = Modifier.size(64.dp),
+                                imageVector = Icons.Default.DateRange,
+                                contentDescription = "calendar",
+                            )
+                        }
+
+                        IconButton(onClick = {
+                            showTimePicker = true
+                        }) {
+                            Icon(
+                                modifier = Modifier.size(64.dp),
+                                painter = painterResource(id = R.drawable.time_24),
+                                contentDescription = "time",
+                            )
+                        }
+                    }
+                },
+            )
+
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = quantity.value,
+                onValueChange = {
+                    vm.onEvent(AddEditFeedingEvent.ChangeQuantity(it))
+                },
+                label = { Text(text = "Quantity") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                singleLine = true,
+            )
+
+            Row(
+                modifier = Modifier.selectableGroup(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+            ) {
+                UnitOfMeasurement.entries.forEach { unit ->
+                    Row(
+                        modifier = Modifier
+                            .selectableGroup()
+                            .selectable(
+                                selected = (units.value == unit),
+                                onClick = {
+                                    vm.onEvent(AddEditFeedingEvent.ChangeUnits(unit))
+                                },
+                            ),
+                    ) {
+                        RadioButton(selected = (units.value == unit), onClick = null)
+                        Text(
+                            text = unit.abbreviation,
+                            style = MaterialTheme.typography.bodyLarge,
+//                        modifier = Modifier.padding(start = 8.dp),
                         )
-                        .padding(16.dp),
-                ) {
-                    RadioButton(selected = (units.value == unit), onClick = null)
-                    Text(
-                        text = unit.abbreviation,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(start = 16.dp),
-                    )
+                    }
                 }
             }
-        }
 
-        TextField(value = notes.value, onValueChange = {
-            vm.onEvent(AddEditFeedingEvent.ChangeNote(it))
-        }, label = { Text(text = "Notes") })
-        Button(onClick = {
-            vm.saveFeeding()
-        }, modifier = Modifier.fillMaxWidth()) {
-            Text(text = "Add")
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = notes.value,
+                onValueChange = {
+                    vm.onEvent(AddEditFeedingEvent.ChangeNote(it))
+                },
+                label = { Text(text = "Notes") },
+            )
+
+            Button(onClick = {
+                vm.saveFeeding()
+            }, modifier = Modifier.fillMaxWidth()) {
+                val label = if (vm.isAdd) "Add" else "Save"
+                Text(text = label)
+            }
+        }
+        if (!vm.isAdd) {
+            TextButton(
+                modifier = Modifier.fillMaxWidth().align(Alignment.End),
+                onClick = { vm.deleteFeeding() },
+            ) {
+                Text(
+                    text = "Delete",
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            }
         }
     }
 }

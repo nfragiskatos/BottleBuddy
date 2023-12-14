@@ -20,6 +20,10 @@ class FeedingRepositoryImpl @Inject constructor(
         return dao.saveFeeding(feeding.toFeedingEntity())
     }
 
+    override suspend fun deleteFeeding(feeding: Feeding) {
+        dao.deleteFeeding(feeding.toFeedingEntity())
+    }
+
     override fun getFeedings(): Flow<List<Feeding>> {
         return dao.getFeedings()
             .map { feedings -> feedings.map { feeding -> feeding.toFeeding() } }

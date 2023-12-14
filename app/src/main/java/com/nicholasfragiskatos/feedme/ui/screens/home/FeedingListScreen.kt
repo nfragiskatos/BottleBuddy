@@ -15,7 +15,6 @@ fun FeedingListScreen(
     navController: NavController,
     vm: FeedingListScreenViewModel = hiltViewModel(),
 ) {
-
     val feedings = vm.feedings.collectAsState()
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {

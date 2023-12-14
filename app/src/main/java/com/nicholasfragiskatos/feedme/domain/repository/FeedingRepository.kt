@@ -9,5 +9,7 @@ interface FeedingRepository {
 
     suspend fun saveFeeding(feeding: Feeding): Long
 
+    suspend fun deleteFeeding(feeding: Feeding)
+
     fun getFeedings(): Flow<List<Feeding>>
 }
