@@ -34,6 +34,7 @@ import java.text.SimpleDateFormat
 @Composable
 fun FeedingItem(
     feeding: Feeding,
+    onDelete: (Feeding) -> Unit,
     onClick: () -> Unit,
 ) {
     Box(
@@ -70,7 +71,7 @@ fun FeedingItem(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(text = date, style = MaterialTheme.typography.titleMedium)
-                OutlinedButton(onClick = { /*TODO*/ }) {
+                OutlinedButton(onClick = { onDelete(feeding) }) {
                     Text(text = "Delete")
                 }
 //                IconButton(onClick = { /*TODO*/ }) {

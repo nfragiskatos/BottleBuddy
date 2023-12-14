@@ -45,4 +45,10 @@ class FeedingListScreenViewModel @Inject constructor(
                 }
         }
     }
+
+    fun deleteFeeding(feeding: Feeding) {
+        viewModelScope.launch {
+            repository.deleteFeeding(feeding)
+        }
+    }
 }
