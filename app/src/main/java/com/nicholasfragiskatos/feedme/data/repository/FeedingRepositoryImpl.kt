@@ -12,7 +12,7 @@ import javax.inject.Inject
 class FeedingRepositoryImpl @Inject constructor(
     private val dao: FeedingDao,
 ) : FeedingRepository {
-    override suspend fun getFeedingById(id: Int): Feeding? {
+    override suspend fun getFeedingById(id: Long): Feeding? {
         return dao.getFeedingById(id)?.toFeeding()
     }
 

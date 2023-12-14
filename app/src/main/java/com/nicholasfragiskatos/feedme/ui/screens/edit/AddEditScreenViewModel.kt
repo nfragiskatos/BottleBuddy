@@ -38,12 +38,13 @@ class AddEditScreenViewModel @Inject constructor(
     val feedingDeleted: StateFlow<Boolean> = _feedingDeleted
 
     val isAdd
-        get() = _currentFeedingId.value == -1L
+        get() = _currentFeedingId.value == 0L
 
     init {
-        savedStateHandle.get<Int>("feedingId")?.let { feedingId ->
+        savedStateHandle.get<Long>("feedingId")?.let { feedingId ->
 
-            if (feedingId != -1) {
+            _currentFeedingId.value = feedingId
+            if (!isAdd) {
                 viewModelScope.launch(Dispatchers.IO) {
                     repository.getFeedingById(feedingId)?.let { feeding ->
                         _notes.value = feeding.notes

@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface FeedingRepository {
 
-    suspend fun getFeedingById(id: Int): Feeding?
+    suspend fun getFeedingById(id: Long): Feeding?
 
     suspend fun saveFeeding(feeding: Feeding): Long
 

@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
                             if (showFab) {
                                 LargeFloatingActionButton(onClick = {
                                     navController.navigate(
-                                        NavigationItem.Edit.buildRoute(-1),
+                                        NavigationItem.Edit.buildRoute(0L),
                                     )
                                 }) {
                                     Icon(Icons.Filled.Edit, "Floating action button.")
@@ -85,8 +85,8 @@ class MainActivity : ComponentActivity() {
                                     route = NavigationItem.Edit.route + "/{feedingId}",
                                     arguments = listOf(
                                         navArgument("feedingId") {
-                                            type = NavType.IntType
-                                            defaultValue = -1
+                                            type = NavType.LongType
+                                            defaultValue = 0L
                                         },
                                     ),
                                 ) {

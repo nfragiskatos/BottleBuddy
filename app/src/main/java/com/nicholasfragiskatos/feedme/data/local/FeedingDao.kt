@@ -9,14 +9,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FeedingDao {
-    @Query("SELECT * FROM feedingentity")
+    @Query("SELECT * FROM feedingentity ORDER BY date DESC")
     fun getFeedings(): Flow<List<FeedingEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveFeeding(feeding: FeedingEntity): Long
 
     @Query("SELECT * FROM feedingentity WHERE id = :id")
-    suspend fun getFeedingById(id: Int): FeedingEntity?
+    suspend fun getFeedingById(id: Long): FeedingEntity?
 
     @Delete
     suspend fun deleteFeeding(feeding: FeedingEntity)
