@@ -12,12 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
-import com.nicholasfragiskatos.feedme.ui.screens.edit.AddEditFeedingEvent
 
 @Composable
 fun UnitSelector(
     modifier: Modifier = Modifier,
-    selectedUnit: UnitOfMeasurement = UnitOfMeasurement.MILLILITER,
+    selectedUnit: UnitOfMeasurement,
     onSelect: (UnitOfMeasurement) -> Unit
 ) {
     Row(

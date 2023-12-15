@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -34,8 +35,9 @@ class AddEditScreenViewModel @Inject constructor(
     private val _notes = MutableStateFlow("")
     val notes: StateFlow<String> = _notes
 
-    private val _feedingDeleted = MutableStateFlow(false)
-    val feedingDeleted: StateFlow<Boolean> = _feedingDeleted
+    private val _finished = MutableStateFlow(false)
+    val finished: StateFlow<Boolean>
+        get() = _finished.asStateFlow()
 
     val isAdd
         get() = _currentFeedingId.value == 0L
@@ -67,13 +69,14 @@ class AddEditScreenViewModel @Inject constructor(
                 notes = notes.value,
             )
             repository.saveFeeding(toSave)
+            _finished.value = true
         }
     }
 
     fun deleteFeeding() {
         viewModelScope.launch {
             repository.deleteFeeding(Feeding(id = _currentFeedingId.value))
-            _feedingDeleted.value = true
+            _finished.value = true
         }
     }
 

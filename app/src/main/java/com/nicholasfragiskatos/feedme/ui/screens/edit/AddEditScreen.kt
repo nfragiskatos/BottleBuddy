@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -25,7 +23,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -49,7 +46,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nicholasfragiskatos.feedme.R
-import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
+import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
 import com.nicholasfragiskatos.feedme.utils.convertUtcToLocalDate
 import java.util.Date
 import java.util.Locale
@@ -64,11 +61,11 @@ fun EditScreen(
     val notes = vm.notes.collectAsState()
     val units = vm.units.collectAsState()
     val date = vm.date.collectAsState()
-    val feedingDeleted = vm.feedingDeleted.collectAsState()
+    val finished = vm.finished.collectAsState()
     val context = LocalContext.current
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
-    if (feedingDeleted.value) {
+    if (finished.value) {
         navController.navigateUp()
     }
 
@@ -126,7 +123,7 @@ fun EditScreen(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
 
-                ) {
+                    ) {
                     TimePicker(state = timePickerState)
                     Row(
                         modifier = Modifier
@@ -162,10 +159,15 @@ fun EditScreen(
             }
         }
     }
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth().fillMaxHeight(0.9f),
+                .fillMaxWidth()
+                .fillMaxHeight(0.9f),
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -210,29 +212,11 @@ fun EditScreen(
                 singleLine = true,
             )
 
-            Row(
-                modifier = Modifier.selectableGroup(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-            ) {
-                UnitOfMeasurement.entries.forEach { unit ->
-                    Row(
-                        modifier = Modifier
-                            .selectableGroup()
-                            .selectable(
-                                selected = (units.value == unit),
-                                onClick = {
-                                    vm.onEvent(AddEditFeedingEvent.ChangeUnits(unit))
-                                },
-                            ),
-                    ) {
-                        RadioButton(selected = (units.value == unit), onClick = null)
-                        Text(
-                            text = unit.abbreviation,
-                            style = MaterialTheme.typography.bodyLarge,
-//                        modifier = Modifier.padding(start = 8.dp),
-                        )
-                    }
-                }
+            UnitSelector(
+                modifier = Modifier.fillMaxWidth(),
+                selectedUnit = units.value
+            ) { unit ->
+                vm.onEvent(AddEditFeedingEvent.ChangeUnits(unit))
             }
 
             TextField(
@@ -253,7 +237,9 @@ fun EditScreen(
         }
         if (!vm.isAdd) {
             TextButton(
-                modifier = Modifier.fillMaxWidth().align(Alignment.End),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.End),
                 onClick = { vm.deleteFeeding() },
             ) {
                 Text(
