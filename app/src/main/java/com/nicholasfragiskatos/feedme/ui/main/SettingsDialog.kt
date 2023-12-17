@@ -29,7 +29,13 @@ import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
 
 
 @Composable
-fun SettingsDialog(goal: String, unitOfMeasurement: UnitOfMeasurement, preferredUnits: UnitOfMeasurement, onDismissRequest: () -> Unit, onConfirmation: (String, UnitOfMeasurement) -> Unit) {
+fun SettingsDialog(
+    goal: String,
+    unitOfMeasurement: UnitOfMeasurement,
+    preferredUnits: UnitOfMeasurement,
+    onDismissRequest: () -> Unit,
+    onConfirmation: (String, UnitOfMeasurement) -> Unit
+) {
 
     var text by remember {
         mutableStateOf(goal)
@@ -56,11 +62,16 @@ fun SettingsDialog(goal: String, unitOfMeasurement: UnitOfMeasurement, preferred
                 verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box (modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
                     Text(text = "Daily Goal", style = MaterialTheme.typography.headlineLarge)
                 }
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.Start
+                ) {
                     OutlinedTextField(
+                        label = { Text(text = "Total") },
                         modifier = Modifier.fillMaxWidth(),
                         value = text,
                         onValueChange = {
@@ -80,7 +91,11 @@ fun SettingsDialog(goal: String, unitOfMeasurement: UnitOfMeasurement, preferred
                 }
 
 
-                Box (modifier = Modifier.fillMaxWidth().padding(top = 8.dp), contentAlignment = Alignment.CenterStart) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp), contentAlignment = Alignment.CenterStart
+                ) {
                     Text(text = "Preferred Units", style = MaterialTheme.typography.headlineLarge)
                 }
 

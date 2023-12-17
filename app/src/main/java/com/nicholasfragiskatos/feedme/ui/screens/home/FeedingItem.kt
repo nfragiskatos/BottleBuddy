@@ -16,12 +16,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Divider
+import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
@@ -40,7 +41,6 @@ import java.text.SimpleDateFormat
 fun FeedingItem(
     feeding: Feeding,
     displayUnit: UnitOfMeasurement,
-    onDelete: (Feeding) -> Unit,
     onClick: () -> Unit,
 ) {
 
@@ -73,7 +73,8 @@ fun FeedingItem(
                             dampingRatio = Spring.DampingRatioMediumBouncy,
                             stiffness = Spring.StiffnessLow
                         )
-                    )
+                    ),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -101,14 +102,6 @@ fun FeedingItem(
                             text = displayUnit.abbreviation,
                             style = MaterialTheme.typography.titleMedium
                         )
-                        if (isExpandable || expanded) {
-                            IconButton(onClick = { expanded = !expanded }) {
-                                Icon(
-                                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                    contentDescription = if (expanded) "hide notes" else "show notes"
-                                )
-                            }
-                        }
                     }
 
                     val date = formatter.format(feeding.date)
@@ -119,8 +112,22 @@ fun FeedingItem(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(text = date, style = MaterialTheme.typography.titleMedium)
-                        TextButton(onClick = { onDelete(feeding) }) {
-                            Text(text = "Delete", style = MaterialTheme.typography.labelLarge)
+                        if (isExpandable || expanded) {
+                            FilledIconToggleButton(
+                                checked = expanded, onCheckedChange = {
+                                    expanded = it
+                                },
+                                colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
+                                    containerColor = Color.Transparent,
+                                    checkedContainerColor = MaterialTheme.colorScheme.primary,
+                                    checkedContentColor = MaterialTheme.colorScheme.onSecondary
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                    contentDescription = if (expanded) "hide notes" else "show notes"
+                                )
+                            }
                         }
                     }
                 }
