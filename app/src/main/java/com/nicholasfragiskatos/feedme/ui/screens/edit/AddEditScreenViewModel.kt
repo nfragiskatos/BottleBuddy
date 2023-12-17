@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
+import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -92,7 +93,7 @@ class AddEditScreenViewModel @Inject constructor(
             }
 
             is AddEditFeedingEvent.ChangeQuantity -> {
-                _quantity.value = event.quantity
+                _quantity.value = UnitUtils.sanitizeDecimalInput(event.quantity, 2)
             }
 
             is AddEditFeedingEvent.ChangeUnits -> {

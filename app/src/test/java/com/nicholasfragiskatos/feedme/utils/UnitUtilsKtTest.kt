@@ -3,6 +3,7 @@ package com.nicholasfragiskatos.feedme.utils
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.utils.UnitUtils.MILLILITER_OZ_FACTOR
 import com.nicholasfragiskatos.feedme.utils.UnitUtils.convertMeasurement
+import com.nicholasfragiskatos.feedme.utils.UnitUtils.sanitizeDecimalInput
 import org.junit.Test
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -134,5 +135,44 @@ class UnitUtilsTest {
         ounces = 87.06
         conversion = convertMeasurement(ounces, UnitOfMeasurement.MILLILITER, UnitOfMeasurement.MILLILITER)
         assertEquals(ounces, conversion)
+    }
+
+    @Test
+    fun `sanitize decimal input`() {
+        var candidate = "1"
+        var signUnits = 2
+        assertEquals("1", sanitizeDecimalInput(candidate, signUnits))
+
+        candidate = "01"
+        signUnits = 2
+        assertEquals("1", sanitizeDecimalInput(candidate, signUnits))
+
+        candidate = "001"
+        signUnits = 2
+        assertEquals("1", sanitizeDecimalInput(candidate, signUnits))
+
+        candidate = "1.1"
+        signUnits = 2
+        assertEquals("1.1", sanitizeDecimalInput(candidate, signUnits))
+
+        candidate = "1.12"
+        signUnits = 2
+        assertEquals("1.12", sanitizeDecimalInput(candidate, signUnits))
+
+        candidate = "1.123"
+        signUnits = 2
+        assertEquals("1.12", sanitizeDecimalInput(candidate, signUnits))
+
+        candidate = "00001.12345"
+        signUnits = 2
+        assertEquals("1.12", sanitizeDecimalInput(candidate, signUnits))
+
+        candidate = "00001.1.2345"
+        signUnits = 4
+        assertEquals("1.1234", sanitizeDecimalInput(candidate, signUnits))
+
+        candidate = "00001.12...345"
+        signUnits = 5
+        assertEquals("1.12345", sanitizeDecimalInput(candidate, signUnits))
     }
 }

@@ -207,7 +207,7 @@ fun EditScreen(
                 onValueChange = {
                     vm.onEvent(AddEditFeedingEvent.ChangeQuantity(it))
                 },
-                label = { Text(text = "Quantity") },
+                label = { Text(text = "Volume") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
             )
