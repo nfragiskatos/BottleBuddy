@@ -228,9 +228,13 @@ fun EditScreen(
                 label = { Text(text = "Notes") },
             )
 
-            Button(onClick = {
-                vm.saveFeeding()
-            }, modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = {
+                    vm.saveFeeding()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = quantity.value.isNotBlank()
+            ) {
                 val label = if (vm.isAdd) "Add" else "Save"
                 Text(text = label)
             }
