@@ -17,11 +17,12 @@ import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 fun UnitSelector(
     modifier: Modifier = Modifier,
     selectedUnit: UnitOfMeasurement,
+    alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     onSelect: (UnitOfMeasurement) -> Unit
 ) {
     Row(
         modifier = modifier.selectableGroup(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+        horizontalArrangement = Arrangement.spacedBy(16.dp, alignment),
     ) {
         UnitOfMeasurement.entries.forEach { unit ->
             Row(

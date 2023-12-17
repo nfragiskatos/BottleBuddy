@@ -22,8 +22,8 @@ class PreferenceManager @Inject constructor(
     }
 
     companion object {
-//        val Context.dataStore by preferencesDataStore(name = "FeedMePrefsDataStore")
         val GOAL_KEY_DATA_STORE = stringPreferencesKey("${BuildConfig.APPLICATION_ID}.GOAL_KEY")
         val UNIT_KEY_DATA_STORE = stringPreferencesKey("${BuildConfig.APPLICATION_ID}.UNIT_KEY")
+        val PREFERRED_UNIT_KEY_DATA_STORE = stringPreferencesKey("${BuildConfig.APPLICATION_ID}.PREFERRED_UNIT_KEY")
     }
 }

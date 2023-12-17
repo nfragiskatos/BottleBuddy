@@ -33,6 +33,7 @@ import com.nicholasfragiskatos.feedme.ui.theme.FeedMeTheme
 import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -70,8 +71,15 @@ class MainActivity : ComponentActivity() {
                         preferenceManager.getData(
                             PreferenceManager.UNIT_KEY_DATA_STORE,
                             UnitOfMeasurement.MILLILITER.name
-                        )
-                    }.collectAsStateWithLifecycle(UnitOfMeasurement.MILLILITER.name)
+                        ).map { UnitOfMeasurement.valueOf(it) }
+                    }.collectAsStateWithLifecycle(UnitOfMeasurement.MILLILITER)
+
+                    val preferredUnits = remember {
+                        preferenceManager.getData(
+                            PreferenceManager.PREFERRED_UNIT_KEY_DATA_STORE,
+                            UnitOfMeasurement.MILLILITER.name
+                        ).map { UnitOfMeasurement.valueOf(it) }
+                    }.collectAsStateWithLifecycle(UnitOfMeasurement.MILLILITER)
 
                     val scope = rememberCoroutineScope()
 
@@ -98,9 +106,10 @@ class MainActivity : ComponentActivity() {
                     ) {
 
                         if (goalDialogOpen.value) {
-                            GoalDialog(
+                            SettingsDialog(
                                 goalData.value,
-                                UnitOfMeasurement.valueOf(unit.value),
+                                unit.value,
+                                preferredUnits.value,
                                 onDismissRequest = {
                                     goalDialogOpen.value = false
                                 }) { pref, unit ->
@@ -109,8 +118,10 @@ class MainActivity : ComponentActivity() {
                                         PreferenceManager.GOAL_KEY_DATA_STORE,
                                         pref
                                     )
-                                    preferenceManager.writeData(PreferenceManager.UNIT_KEY_DATA_STORE,
-                                        unit.name)
+                                    preferenceManager.writeData(
+                                        PreferenceManager.UNIT_KEY_DATA_STORE,
+                                        unit.name
+                                    )
                                 }
                                 goalDialogOpen.value = false
                             }
@@ -126,7 +137,7 @@ class MainActivity : ComponentActivity() {
                                 startDestination = NavigationItem.Home.route,
                             ) {
                                 composable(route = NavigationItem.Home.route) {
-                                    FeedingListScreen(navController)
+                                    FeedingListScreen(navController, preferredUnits.value)
                                     title.value = "Home"
                                 }
                                 composable(

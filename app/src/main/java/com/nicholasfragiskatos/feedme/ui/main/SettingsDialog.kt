@@ -1,23 +1,19 @@
 package com.nicholasfragiskatos.feedme.ui.main
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +29,7 @@ import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
 
 
 @Composable
-fun GoalDialog(goal: String, unitOfMeasurement: UnitOfMeasurement, onDismissRequest: () -> Unit, onConfirmation: (String, UnitOfMeasurement) -> Unit) {
+fun SettingsDialog(goal: String, unitOfMeasurement: UnitOfMeasurement, preferredUnits: UnitOfMeasurement, onDismissRequest: () -> Unit, onConfirmation: (String, UnitOfMeasurement) -> Unit) {
 
     var text by remember {
         mutableStateOf(goal)
@@ -43,6 +39,10 @@ fun GoalDialog(goal: String, unitOfMeasurement: UnitOfMeasurement, onDismissRequ
         mutableStateOf(unitOfMeasurement)
     }
 
+    var prefUnits by remember {
+        mutableStateOf(preferredUnits)
+    }
+
     Dialog(onDismissRequest = onDismissRequest) {
         Card(
             modifier = Modifier
@@ -50,13 +50,17 @@ fun GoalDialog(goal: String, unitOfMeasurement: UnitOfMeasurement, onDismissRequ
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Daily Goal", style = MaterialTheme.typography.headlineLarge)
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    TextField(
+                Box (modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterStart) {
+                    Text(text = "Daily Goal", style = MaterialTheme.typography.headlineLarge)
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                    OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = text,
                         onValueChange = {
@@ -66,10 +70,29 @@ fun GoalDialog(goal: String, unitOfMeasurement: UnitOfMeasurement, onDismissRequ
                             keyboardType = KeyboardType.Decimal
                         )
                     )
-                    UnitSelector(Modifier.fillMaxWidth(), unit) {
+                    UnitSelector(
+                        modifier = Modifier.fillMaxWidth(),
+                        selectedUnit = unit,
+                        alignment = Alignment.Start
+                    ) {
                         unit = it
                     }
                 }
+
+
+                Box (modifier = Modifier.fillMaxWidth().padding(top = 8.dp), contentAlignment = Alignment.CenterStart) {
+                    Text(text = "Preferred Units", style = MaterialTheme.typography.headlineLarge)
+                }
+
+                UnitSelector(
+                    modifier = Modifier.fillMaxWidth(),
+                    selectedUnit = prefUnits,
+                    alignment = Alignment.Start
+                ) {
+                    prefUnits = it
+                }
+
+                Divider()
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
