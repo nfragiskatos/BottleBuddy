@@ -86,7 +86,9 @@ class MainActivity : ComponentActivity() {
 
                     Scaffold(
                         topBar = {
-                            TopAppBar {
+                            val route = navBackstackEntry?.destination?.route
+                            val showBackButton = route != null && route != NavigationItem.Home.route
+                            TopAppBar(navController, showBackButton, !showBackButton) {
                                 goalDialogOpen.value = true
                             }
                         },

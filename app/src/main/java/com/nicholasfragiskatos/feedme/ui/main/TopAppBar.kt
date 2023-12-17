@@ -1,6 +1,7 @@
 package com.nicholasfragiskatos.feedme.ui.main
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,11 +11,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.navigation.NavController
 import com.nicholasfragiskatos.feedme.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(onGoalClicked: () -> Unit) {
+fun TopAppBar(
+    navController: NavController,
+    hasBackButton: Boolean = false,
+    hasSettingsButton: Boolean = true,
+    onGoalClicked: () -> Unit
+) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -24,8 +31,20 @@ fun TopAppBar(onGoalClicked: () -> Unit) {
             )
         },
         actions = {
-            IconButton(onClick = onGoalClicked) {
-                Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
+            if (hasSettingsButton) {
+                IconButton(onClick = onGoalClicked) {
+                    Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
+                }
+            }
+        },
+        navigationIcon = {
+            if (hasBackButton) {
+                IconButton(onClick = { navController.navigateUp() }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Navigate Back Button"
+                    )
+                }
             }
         }
     )
