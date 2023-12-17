@@ -53,6 +53,7 @@ class AddEditScreenViewModel @Inject constructor(
                         _quantity.value = feeding.quantity.toString()
                         _units.value = feeding.unit
                         _currentFeedingId.value = feeding.id
+                        _date.value = feeding.date
                     }
                 }
             }
