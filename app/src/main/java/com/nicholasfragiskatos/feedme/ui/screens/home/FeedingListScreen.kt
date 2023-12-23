@@ -31,8 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.ui.screens.NavigationItem
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import java.time.format.DateTimeFormatter
@@ -41,20 +41,22 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun FeedingListScreen(
     navController: NavController,
-    displayUnits: UnitOfMeasurement,
     vm: FeedingListScreenViewModel = hiltViewModel(),
 ) {
     val grouping by vm.grouping.collectAsState()
     val loading by vm.loading.collectAsState()
     val graphPoints by vm.graphPoints.collectAsState()
-    val goal by vm.dailyGoal.collectAsState()
+    val preferences by vm.preferences.collectAsStateWithLifecycle()
 
     val dateTimeFormatter = remember {
         DateTimeFormatter.ofPattern("EEE, LLL dd, YYYY")
     }
 
     Column {
-        CumulativeGoalGraph(pointsData = graphPoints, goal)
+        CumulativeGoalGraph(
+            pointsData = graphPoints,
+            preferences = preferences
+        )
 
         if (grouping.isEmpty() && !loading) {
             MyEmptyListView(navController)
@@ -69,7 +71,7 @@ fun FeedingListScreen(
                         UnitUtils.convertMeasurement(
                             feeding.quantity,
                             feeding.unit,
-                            displayUnits
+                            preferences.displayUnit
                         )
                     }
 
@@ -91,7 +93,7 @@ fun FeedingListScreen(
                             )
 
                             Text(
-                                text = "Total: %.2f".format(dayTotal),
+                                text = "Total: %.2f${preferences.displayUnit.abbreviation}".format(dayTotal),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.secondary
                             )
@@ -132,7 +134,7 @@ fun FeedingListScreen(
                                     )
                                 }
                             }, dismissContent = {
-                                FeedingItem(feeding = feeding, displayUnits) {
+                                FeedingItem(feeding = feeding, preferences.displayUnit) {
                                     navController.navigate(NavigationItem.Edit.buildRoute(feeding.id))
                                 }
                             })
@@ -145,11 +147,17 @@ fun FeedingListScreen(
 
 @Composable
 fun MyEmptyListView(navController: NavController) {
-    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(text = "No bottles have been counted yet.")
-        Button(onClick = { navController.navigate(
-            NavigationItem.Edit.buildRoute(0L)
-        ) }) {
+        Button(onClick = {
+            navController.navigate(
+                NavigationItem.Edit.buildRoute(0L)
+            )
+        }) {
             Text(text = "Add your first bottle now!")
         }
     }

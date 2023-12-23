@@ -22,12 +22,20 @@ import co.yml.charts.ui.linechart.model.LineType
 import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
 import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
+import com.nicholasfragiskatos.feedme.domain.model.FeedMePreferences
+import com.nicholasfragiskatos.feedme.utils.UnitUtils
 
 @Composable
 fun CumulativeGoalGraph(
     pointsData: List<Point>,
-    goal: Float
+    preferences: FeedMePreferences,
 ) {
+    val normalizedGoal = UnitUtils.convertMeasurement(
+        preferences.goal.toDouble(),
+        preferences.goalUnit,
+        preferences.displayUnit
+    ).toFloat()
+
     val steps = 10
     val xAxisData = AxisData.Builder()
         .axisStepSize(1.dp)
@@ -43,14 +51,17 @@ fun CumulativeGoalGraph(
         .labelAndAxisLinePadding(15.dp)
         .axisLabelAngle(45f)
         .axisLineColor(MaterialTheme.colorScheme.primary)
+        .shouldDrawAxisLineTillEnd(true)
+
         .build()
     val yAxisData = AxisData.Builder()
         .steps(steps)
         .labelData { i ->
-            val yMin = pointsData.minOf { it.y }
-            val yMax = pointsData.maxOf { it.y }
+            val yMin = 0f
+            val yMax = maxOf(normalizedGoal, pointsData.maxOf { it.y })
+
             val yScale = (yMax - yMin) / steps
-            ((i * yScale) + yMin).formatToSinglePrecision()
+            "${((i * yScale) + yMin).formatToSinglePrecision()}${preferences.displayUnit.abbreviation}"
         }
         .axisLineColor(MaterialTheme.colorScheme.primary)
         .labelAndAxisLinePadding(20.dp)
@@ -83,7 +94,9 @@ fun CumulativeGoalGraph(
                     )
                 ),
                 Line(
-                    dataPoints = MutableList(1440) { index -> Point(index.toFloat(), goal) },
+                    dataPoints = MutableList(1440) { index ->
+                        Point(index.toFloat(), normalizedGoal)
+                    },
                     lineStyle = LineStyle(
                         lineType = LineType.SmoothCurve(isDotted = true),
                         color = MaterialTheme.colorScheme.tertiary

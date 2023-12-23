@@ -25,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.nicholasfragiskatos.feedme.domain.model.FeedMePreferences
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.ui.screens.NavigationItem
 import com.nicholasfragiskatos.feedme.ui.screens.edit.EditScreen
@@ -33,7 +34,6 @@ import com.nicholasfragiskatos.feedme.ui.theme.FeedMeTheme
 import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -63,26 +63,17 @@ class MainActivity : ComponentActivity() {
                         mutableStateOf(false)
                     }
 
-                    val goalData = remember {
-                        preferenceManager.getData(PreferenceManager.GOAL_KEY_DATA_STORE, "")
-                    }.collectAsStateWithLifecycle("")
-
-                    val unit = remember {
-                        preferenceManager.getData(
-                            PreferenceManager.UNIT_KEY_DATA_STORE,
-                            UnitOfMeasurement.MILLILITER.name
-                        ).map { UnitOfMeasurement.valueOf(it) }
-                    }.collectAsStateWithLifecycle(UnitOfMeasurement.MILLILITER)
-
-                    val preferredUnits = remember {
-                        preferenceManager.getData(
-                            PreferenceManager.PREFERRED_UNIT_KEY_DATA_STORE,
-                            UnitOfMeasurement.MILLILITER.name
-                        ).map { UnitOfMeasurement.valueOf(it) }
-                    }.collectAsStateWithLifecycle(UnitOfMeasurement.MILLILITER)
+                    val preferences by remember {
+                        preferenceManager.getPreferences()
+                    }.collectAsStateWithLifecycle(
+                        initialValue = FeedMePreferences(
+                            50f,
+                            UnitOfMeasurement.MILLILITER,
+                            UnitOfMeasurement.MILLILITER
+                        )
+                    )
 
                     val scope = rememberCoroutineScope()
-
 
                     Scaffold(
                         topBar = {
@@ -109,9 +100,9 @@ class MainActivity : ComponentActivity() {
 
                         if (goalDialogOpen.value) {
                             SettingsDialog(
-                                goalData.value,
-                                unit.value,
-                                preferredUnits.value,
+                                preferences.goal.toString(),
+                                preferences.goalUnit,
+                                preferences.displayUnit,
                                 onDismissRequest = {
                                     goalDialogOpen.value = false
                                 }) { pref, unit ->
@@ -139,7 +130,7 @@ class MainActivity : ComponentActivity() {
                                 startDestination = NavigationItem.Home.route,
                             ) {
                                 composable(route = NavigationItem.Home.route) {
-                                    FeedingListScreen(navController, preferredUnits.value)
+                                    FeedingListScreen(navController)
                                     title.value = "Home"
                                 }
                                 composable(
