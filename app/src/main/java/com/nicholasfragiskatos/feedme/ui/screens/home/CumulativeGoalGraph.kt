@@ -25,6 +25,8 @@ import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.nicholasfragiskatos.feedme.domain.model.FeedMePreferences
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 
+// TODO: Correct the point popups to show correct unit and measurement
+
 @Composable
 fun CumulativeGoalGraph(
     pointsData: List<Point>,
