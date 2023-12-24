@@ -24,7 +24,6 @@ import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,14 +42,12 @@ fun FeedingListScreen(
     navController: NavController,
     vm: FeedingListScreenViewModel = hiltViewModel(),
 ) {
-    val grouping by vm.grouping.collectAsState()
-    val loading by vm.loading.collectAsState()
-    val graphPoints by vm.graphPoints.collectAsState()
+    val grouping by vm.grouping.collectAsStateWithLifecycle()
+    val loading by vm.loading.collectAsStateWithLifecycle()
+    val graphPoints by vm.graphPoints.collectAsStateWithLifecycle()
     val preferences by vm.preferences.collectAsStateWithLifecycle()
 
-    val dateTimeFormatter = remember {
-        DateTimeFormatter.ofPattern("EEE, LLL dd, YYYY")
-    }
+    val dateTimeFormatter = remember { DateTimeFormatter.ofPattern("EEE, LLL dd, YYYY") }
 
     Column {
         CumulativeGoalGraph(
@@ -93,7 +90,9 @@ fun FeedingListScreen(
                             )
 
                             Text(
-                                text = "Total: %.2f${preferences.displayUnit.abbreviation}".format(dayTotal),
+                                text = "Total: %.2f${preferences.displayUnit.abbreviation}".format(
+                                    dayTotal
+                                ),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.secondary
                             )
