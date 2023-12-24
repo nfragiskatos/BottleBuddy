@@ -44,17 +44,11 @@ fun FeedingItem(
     onClick: () -> Unit,
 ) {
 
-    var expanded by remember {
-        mutableStateOf(false)
-    }
+    var expanded by remember { mutableStateOf(false) }
 
-    var isExpandable by remember {
-        mutableStateOf(false)
-    }
+    var isExpandable by remember { mutableStateOf(false) }
 
-    val formatter = remember {
-        SimpleDateFormat("h:mm a")
-    }
+    val formatter = remember { SimpleDateFormat("h:mm a") }
 
     Box(
         modifier = Modifier

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -25,7 +24,6 @@ import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.nicholasfragiskatos.feedme.domain.model.FeedMePreferences
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
-import java.text.SimpleDateFormat
 
 
 @Composable
@@ -38,10 +36,6 @@ fun CumulativeGoalGraph(
         preferences.goalUnit,
         preferences.displayUnit
     ).toFloat()
-
-    val formatter = remember {
-        SimpleDateFormat("h:mm a")
-    }
 
     val steps = 10
     val xAxisData = AxisData.Builder()
