@@ -1,7 +1,6 @@
 package com.nicholasfragiskatos.feedme.ui.screens.edit
 
 import android.icu.text.SimpleDateFormat
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,7 +29,6 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,12 +36,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nicholasfragiskatos.feedme.R
 import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
@@ -57,12 +55,12 @@ fun EditScreen(
     navController: NavController,
     vm: AddEditScreenViewModel = hiltViewModel(),
 ) {
-    val quantity = vm.quantity.collectAsState()
-    val notes = vm.notes.collectAsState()
-    val units = vm.units.collectAsState()
-    val date = vm.date.collectAsState()
-    val finished = vm.finished.collectAsState()
-    val context = LocalContext.current
+    val quantity by vm.quantity.collectAsStateWithLifecycle()
+    val notes by vm.notes.collectAsStateWithLifecycle()
+    val units by vm.units.collectAsStateWithLifecycle()
+    val date by vm.date.collectAsStateWithLifecycle()
+    val finished = vm.finished.collectAsStateWithLifecycle()
+
     val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
     if (finished.value) {
@@ -71,19 +69,15 @@ fun EditScreen(
 
     val formattedDate by remember {
         derivedStateOf {
-            formatter.format(date.value)
+            formatter.format(date)
         }
     }
 
-    var showDatePicker by remember {
-        mutableStateOf(false)
-    }
-    val datePickerState = rememberDatePickerState(date.value.time)
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState(date.time)
 
-    var showTimePicker by remember {
-        mutableStateOf(false)
-    }
-    val timePickerState = rememberTimePickerState(date.value.hours, date.value.minutes, true)
+    var showTimePicker by remember { mutableStateOf(false) }
+    val timePickerState = rememberTimePickerState(date.hours, date.minutes, true)
 
     if (showDatePicker) {
         DatePickerDialog(
@@ -138,12 +132,7 @@ fun EditScreen(
                         }
                         TextButton(
                             onClick = {
-                                Toast.makeText(
-                                    context,
-                                    "Selected Time: ${timePickerState.hour}:${timePickerState.minute}",
-                                    Toast.LENGTH_SHORT,
-                                ).show()
-                                val updatedDate = Date(date.value.time).apply {
+                                val updatedDate = Date(date.time).apply {
                                     hours = timePickerState.hour
                                     minutes = timePickerState.minute
                                 }
@@ -203,7 +192,7 @@ fun EditScreen(
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = quantity.value,
+                value = quantity,
                 onValueChange = {
                     vm.onEvent(AddEditFeedingEvent.ChangeQuantity(it))
                 },
@@ -214,14 +203,14 @@ fun EditScreen(
 
             UnitSelector(
                 modifier = Modifier.fillMaxWidth(),
-                selectedUnit = units.value
+                selectedUnit = units
             ) { unit ->
                 vm.onEvent(AddEditFeedingEvent.ChangeUnits(unit))
             }
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = notes.value,
+                value = notes,
                 onValueChange = {
                     vm.onEvent(AddEditFeedingEvent.ChangeNote(it))
                 },
@@ -233,7 +222,7 @@ fun EditScreen(
                     vm.saveFeeding()
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = quantity.value.isNotBlank()
+                enabled = quantity.isNotBlank()
             ) {
                 val label = if (vm.isAdd) "Add" else "Save"
                 Text(text = label)
