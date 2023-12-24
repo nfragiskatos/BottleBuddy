@@ -37,17 +37,11 @@ fun SettingsDialog(
     onConfirmation: (String, UnitOfMeasurement) -> Unit
 ) {
 
-    var text by remember {
-        mutableStateOf(goal)
-    }
+    var text by remember { mutableStateOf(goal) }
 
-    var unit by remember {
-        mutableStateOf(unitOfMeasurement)
-    }
+    var unit by remember { mutableStateOf(unitOfMeasurement) }
 
-    var prefUnits by remember {
-        mutableStateOf(preferredUnits)
-    }
+    var prefUnits by remember { mutableStateOf(preferredUnits) }
 
     Dialog(onDismissRequest = onDismissRequest) {
         Card(
