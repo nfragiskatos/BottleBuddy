@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
@@ -56,15 +57,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    val title = remember { mutableStateOf("Home") }
-
                     val navController = rememberNavController()
 
                     val navBackstackEntry by navController.currentBackStackEntryAsState()
 
-                    val goalDialogOpen = remember {
-                        mutableStateOf(false)
-                    }
+                    var goalDialogOpen by remember { mutableStateOf(false) }
 
                     val preferences by remember {
                         preferenceManager.getPreferences()
@@ -83,7 +80,7 @@ class MainActivity : ComponentActivity() {
                             val route = navBackstackEntry?.destination?.route
                             val showBackButton = route != null && route != NavigationItem.Home.route
                             TopAppBar(navController, showBackButton, !showBackButton) {
-                                goalDialogOpen.value = true
+                                goalDialogOpen = true
                             }
                         },
                         floatingActionButton = {
@@ -101,13 +98,13 @@ class MainActivity : ComponentActivity() {
                         },
                     ) {
 
-                        if (goalDialogOpen.value) {
+                        if (goalDialogOpen) {
                             SettingsDialog(
                                 preferences.goal.toString(),
                                 preferences.goalUnit,
                                 preferences.displayUnit,
                                 onDismissRequest = {
-                                    goalDialogOpen.value = false
+                                    goalDialogOpen = false
                                 }) { pref, unit ->
                                 scope.launch(Dispatchers.IO) {
                                     preferenceManager.writeData(
@@ -119,7 +116,7 @@ class MainActivity : ComponentActivity() {
                                         unit.name
                                     )
                                 }
-                                goalDialogOpen.value = false
+                                goalDialogOpen = false
                             }
                         }
 
@@ -134,7 +131,6 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 composable(route = NavigationItem.Home.route) {
                                     FeedingListScreen(navController)
-                                    title.value = "Home"
                                 }
                                 composable(
                                     route = NavigationItem.Edit.route + "/{feedingId}",
@@ -146,7 +142,6 @@ class MainActivity : ComponentActivity() {
                                     ),
                                 ) {
                                     EditScreen(navController)
-                                    title.value = "Edit"
                                 }
                             }
                         }
