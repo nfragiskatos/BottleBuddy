@@ -27,8 +27,6 @@ import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import kotlin.math.roundToInt
 
-// TODO: Fix popup dot color
-// TODO: Fix popup dot number format
 @Composable
 fun CumulativeGoalGraph(
     pointsData: List<Point>,
@@ -100,12 +98,12 @@ fun CumulativeGoalGraph(
                         ), alpha = 0.3f
                     ),
                     selectionHighlightPoint = SelectionHighlightPoint(
-                        color = Color.Green
+                        color = MaterialTheme.colorScheme.primary
                     ),
                     selectionHighlightPopUp = SelectionHighlightPopUp(
-                        backgroundColor = Color.Black,
+                        backgroundColor = MaterialTheme.colorScheme.primary,
                         backgroundStyle = Stroke(2f),
-                        labelColor = Color.Red,
+                        labelColor = MaterialTheme.colorScheme.primary,
                         labelTypeface = Typeface.DEFAULT_BOLD,
                         popUpLabel = {x, y ->
                             var hour = (x / 60).toInt()
@@ -116,7 +114,8 @@ fun CumulativeGoalGraph(
                                 hour -= 12
                                 ampm = "pm"
                             }
-                            "$hour:$minutesDisplay$ampm, y = ${pointsData[x.toInt()].y}${preferences.displayUnit.abbreviation}"
+                            val yval = "%.2f".format(pointsData[x.toInt()].y)
+                            "$hour:$minutesDisplay$ampm, y = $yval${preferences.displayUnit.abbreviation}"
 
                         }
                     )
