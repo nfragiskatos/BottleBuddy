@@ -23,7 +23,9 @@ import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
 import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.nicholasfragiskatos.feedme.domain.model.FeedMePreferences
+import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -51,7 +53,8 @@ fun CumulativeGoalGraph(
         }
         .labelAndAxisLinePadding(15.dp)
         .axisLabelAngle(45f)
-        .axisLineColor(MaterialTheme.colorScheme.primary)
+        .axisLineColor(MaterialTheme.colorScheme.onSurface)
+        .axisLabelColor(MaterialTheme.colorScheme.onSurfaceVariant)
         .shouldDrawAxisLineTillEnd(true)
 
         .build()
@@ -62,10 +65,21 @@ fun CumulativeGoalGraph(
             val yMax = maxOf(normalizedGoal, pointsData.maxOf { it.y })
 
             val yScale = (yMax - yMin) / steps
-            "${((i * yScale) + yMin).formatToSinglePrecision()}${preferences.displayUnit.abbreviation}"
+            if (i == 0) {
+                "0${preferences.displayUnit.abbreviation}"
+            } else {
+                if (preferences.displayUnit == UnitOfMeasurement.MILLILITER) {
+                    ((i * yScale) + yMin).roundToInt().toString()
+                } else {
+                    ((i * yScale) + yMin).formatToSinglePrecision()
+                }
+
+            }
+
         }
-        .axisLineColor(MaterialTheme.colorScheme.primary)
+        .axisLineColor(MaterialTheme.colorScheme.onSurface)
         .labelAndAxisLinePadding(20.dp)
+        .axisLabelColor(MaterialTheme.colorScheme.onSurfaceVariant)
         .build()
     val data = LineChartData(
         linePlotData = LinePlotData(
@@ -118,12 +132,13 @@ fun CumulativeGoalGraph(
             )
         ),
         xAxisData = xAxisData,
-        yAxisData = yAxisData
+        yAxisData = yAxisData,
+        backgroundColor = MaterialTheme.colorScheme.surface
     )
     LineChart(
         modifier = Modifier
             .fillMaxWidth()
             .height(300.dp),
-        lineChartData = data
+        lineChartData = data,
     )
 }
