@@ -47,9 +47,9 @@ fun FeedingListScreen(
 ) {
     val grouping by vm.grouping.collectAsStateWithLifecycle()
     val loading by vm.loading.collectAsStateWithLifecycle()
-    val graphPoints by vm.graphPoints.collectAsStateWithLifecycle()
     val preferences by vm.preferences.collectAsStateWithLifecycle()
     var isProgressExpanded by remember { mutableStateOf(true) }
+    val testGraphPoints by vm.graphPoints.collectAsStateWithLifecycle()
 
     val dateTimeFormatter = remember { DateTimeFormatter.ofPattern("EEE, LLL dd, YYYY") }
 
@@ -68,7 +68,7 @@ fun FeedingListScreen(
         }
         if (isProgressExpanded) {
             CumulativeGoalGraph(
-                pointsData = graphPoints,
+                pointsData = testGraphPoints,
                 preferences = preferences,
             )
         }
@@ -106,6 +106,7 @@ fun FeedingListScreen(
                                 color = MaterialTheme.colorScheme.secondary,
                             )
 
+                            // TODO: Fix mL formatting, probably don't care about decimals. Should create a formatter class
                             Text(
                                 text = "Total: %.2f${preferences.displayUnit.abbreviation}".format(
                                     dayTotal

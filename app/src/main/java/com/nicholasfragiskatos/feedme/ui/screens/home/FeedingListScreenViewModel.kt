@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.inject.Inject
@@ -35,10 +35,11 @@ class FeedingListScreenViewModel @Inject constructor(
     private val _loading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
-    private val _graphPoints: MutableStateFlow<List<Point>> = MutableStateFlow(MutableList(1440) {
-        Point(it.toFloat(), 0.0f)
-    })
-    val graphPoints: StateFlow<List<Point>> = _graphPoints.asStateFlow()
+    private val feedingsForToday = repository.getFeedingsForToday().stateIn(
+        scope = viewModelScope,
+        initialValue = emptyList(),
+        started = SharingStarted.WhileSubscribed(5000)
+    )
 
     val preferences = preferenceManager.getPreferences().stateIn(
         scope = viewModelScope,
@@ -50,6 +51,11 @@ class FeedingListScreenViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000)
     )
 
+    val graphPoints : StateFlow<List<Point>> = feedingsForToday.combine(preferences) { feedings, prefs ->
+        createPoints(feedings, prefs.displayUnit)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MutableList(1440) {
+        Point(it.toFloat(), 0.0f)
+    })
 
     init {
         viewModelScope.launch {
@@ -57,17 +63,13 @@ class FeedingListScreenViewModel @Inject constructor(
             repository.getFeedings()
                 .collect {
 
-                    val groupBy: Map<LocalDateTime, List<Feeding>> = it.groupBy {
+                    val groupBy: Map<LocalDateTime, List<Feeding>> = it.groupBy { feeding ->
                         val toLocalDate =
-                            it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                            feeding.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
                         toLocalDate.atStartOfDay()
                     }
                     _grouping.value = groupBy
-
-                    val today = LocalDate.now().atStartOfDay()
-                    val feedingsToday = groupBy[today] ?: emptyList()
                     _loading.value = false
-                    _graphPoints.value = createPoints(feedingsToday)
                 }
 
         }
@@ -79,7 +81,7 @@ class FeedingListScreenViewModel @Inject constructor(
         }
     }
 
-    private fun createPoints(feedings: List<Feeding>): List<Point> {
+    private fun createPoints(feedings: List<Feeding>, displayUnit: UnitOfMeasurement): List<Point> {
         val list = MutableList(1440) { index -> Point(index.toFloat(), 0.0f) }
         var hour: Int
         var minute: Int
@@ -89,7 +91,7 @@ class FeedingListScreenViewModel @Inject constructor(
             minute = feeding.date.minutes
 
             val absoluteMinute = (hour * 60) + minute
-            val amount = UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, preferences.value.displayUnit)
+            val amount = UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, displayUnit)
 
             list[absoluteMinute] = Point(absoluteMinute.toFloat(), amount.toFloat())
         }

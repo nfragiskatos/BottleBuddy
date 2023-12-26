@@ -27,7 +27,8 @@ import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import kotlin.math.roundToInt
 
-
+// TODO: Fix popup dot color
+// TODO: Fix popup dot number format
 @Composable
 fun CumulativeGoalGraph(
     pointsData: List<Point>,

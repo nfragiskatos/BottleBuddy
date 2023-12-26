@@ -38,10 +38,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-// TODO: convert all collectAsState -> collectAsStateWithLifecycle
-// TODO: convert all = remember to by remember
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
