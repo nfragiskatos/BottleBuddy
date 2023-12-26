@@ -22,10 +22,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -46,15 +49,29 @@ fun FeedingListScreen(
     val loading by vm.loading.collectAsStateWithLifecycle()
     val graphPoints by vm.graphPoints.collectAsStateWithLifecycle()
     val preferences by vm.preferences.collectAsStateWithLifecycle()
+    var isProgressExpanded by remember { mutableStateOf(true) }
 
     val dateTimeFormatter = remember { DateTimeFormatter.ofPattern("EEE, LLL dd, YYYY") }
 
-    Column {
-        CumulativeGoalGraph(
-            pointsData = graphPoints,
-            preferences = preferences
-        )
-
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            TextButton(onClick = { isProgressExpanded = !isProgressExpanded }) {
+                Text(text = "${if (isProgressExpanded) "Hide" else "Show"} Today's Progress")
+            }
+        }
+        if (isProgressExpanded) {
+            CumulativeGoalGraph(
+                pointsData = graphPoints,
+                preferences = preferences,
+            )
+        }
         if (grouping.isEmpty() && !loading) {
             MyEmptyListView(navController)
         } else {
