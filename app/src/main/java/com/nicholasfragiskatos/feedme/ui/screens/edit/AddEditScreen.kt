@@ -49,6 +49,7 @@ import com.nicholasfragiskatos.feedme.utils.convertUtcToLocalDate
 import java.util.Date
 import java.util.Locale
 
+// TODO: Add notify contact of updated/new feeding
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditScreen(
