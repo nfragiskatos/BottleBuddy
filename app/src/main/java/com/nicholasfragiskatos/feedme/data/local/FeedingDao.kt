@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
 @Dao
 interface FeedingDao {
@@ -17,6 +18,9 @@ interface FeedingDao {
 
     @Query("SELECT * FROM feedingentity WHERE id = :id")
     suspend fun getFeedingById(id: Long): FeedingEntity?
+
+    @Query("SELECT * FROM feedingentity WHERE date BETWEEN :from AND :to")
+    fun getFeedingsByDateRange(from: Date, to: Date): Flow<List<FeedingEntity>>
 
     @Delete
     suspend fun deleteFeeding(feeding: FeedingEntity)

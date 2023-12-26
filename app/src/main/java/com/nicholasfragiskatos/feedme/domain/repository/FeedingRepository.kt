@@ -12,4 +12,6 @@ interface FeedingRepository {
     suspend fun deleteFeeding(feeding: Feeding)
 
     fun getFeedings(): Flow<List<Feeding>>
+
+    fun getFeedingsForToday(): Flow<List<Feeding>>
 }

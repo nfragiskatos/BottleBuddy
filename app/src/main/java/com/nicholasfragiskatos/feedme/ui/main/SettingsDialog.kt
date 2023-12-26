@@ -34,7 +34,7 @@ fun SettingsDialog(
     unitOfMeasurement: UnitOfMeasurement,
     preferredUnits: UnitOfMeasurement,
     onDismissRequest: () -> Unit,
-    onConfirmation: (String, UnitOfMeasurement) -> Unit
+    onConfirmation: (String, UnitOfMeasurement, UnitOfMeasurement) -> Unit
 ) {
 
     var text by remember { mutableStateOf(goal) }
@@ -110,7 +110,7 @@ fun SettingsDialog(
                         Text(text = "Dismiss")
                     }
 
-                    TextButton(onClick = { onConfirmation(text, unit) }) {
+                    TextButton(onClick = { onConfirmation(text, unit, prefUnits) }) {
                         Text(text = "Confirm")
                     }
                 }

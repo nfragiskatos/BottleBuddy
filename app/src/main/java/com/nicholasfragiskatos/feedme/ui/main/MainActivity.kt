@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
                                 preferences.displayUnit,
                                 onDismissRequest = {
                                     goalDialogOpen = false
-                                }) { pref, unit ->
+                                }) { pref, unit, displayUnit ->
                                 scope.launch(Dispatchers.IO) {
                                     preferenceManager.writeData(
                                         PreferenceManager.GOAL_KEY_DATA_STORE,
@@ -114,6 +114,10 @@ class MainActivity : ComponentActivity() {
                                     preferenceManager.writeData(
                                         PreferenceManager.UNIT_KEY_DATA_STORE,
                                         unit.name
+                                    )
+                                    preferenceManager.writeData(
+                                        PreferenceManager.PREFERRED_UNIT_KEY_DATA_STORE,
+                                        displayUnit.name
                                     )
                                 }
                                 goalDialogOpen = false

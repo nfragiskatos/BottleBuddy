@@ -7,6 +7,10 @@ import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.util.Date
 import javax.inject.Inject
 
 class FeedingRepositoryImpl @Inject constructor(
@@ -26,6 +30,15 @@ class FeedingRepositoryImpl @Inject constructor(
 
     override fun getFeedings(): Flow<List<Feeding>> {
         return dao.getFeedings()
+            .map { feedings -> feedings.map { feeding -> feeding.toFeeding() } }
+    }
+
+    override fun getFeedingsForToday(): Flow<List<Feeding>> {
+        val localDate = LocalDate.now(ZoneId.systemDefault())
+        val from = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+        val to =
+            Date.from(localDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant())
+        return dao.getFeedingsByDateRange(from, to)
             .map { feedings -> feedings.map { feeding -> feeding.toFeeding() } }
     }
 }
