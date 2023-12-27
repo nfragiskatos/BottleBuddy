@@ -1,6 +1,7 @@
 package com.nicholasfragiskatos.feedme.ui.screens.edit
 
-import android.icu.text.SimpleDateFormat
+import android.content.Intent
+import android.icu.text.DateFormat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -22,6 +24,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -36,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -47,7 +52,6 @@ import com.nicholasfragiskatos.feedme.R
 import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
 import com.nicholasfragiskatos.feedme.utils.convertUtcToLocalDate
 import java.util.Date
-import java.util.Locale
 
 // TODO: Add notify contact of updated/new feeding
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,8 +65,8 @@ fun EditScreen(
     val units by vm.units.collectAsStateWithLifecycle()
     val date by vm.date.collectAsStateWithLifecycle()
     val finished = vm.finished.collectAsStateWithLifecycle()
-
-    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+    val context = LocalContext.current
+    var sendFeeding by remember { mutableStateOf(true) }
 
     if (finished.value) {
         navController.navigateUp()
@@ -70,7 +74,7 @@ fun EditScreen(
 
     val formattedDate by remember {
         derivedStateOf {
-            formatter.format(date)
+            DateFormat.getInstance().format(date)
         }
     }
 
@@ -218,8 +222,61 @@ fun EditScreen(
                 label = { Text(text = "Notes") },
             )
 
+            if (vm.isAdd) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+
+                    ) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        Text(
+                            text = "Send Feeding",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "When saving, you can choose to send this to someone in your contacts.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+
+                    Switch(checked = sendFeeding, onCheckedChange = { sendFeeding = it },
+                        thumbContent = if (sendFeeding) {
+                            {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = "Send Feeding Checkbox",
+                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                )
+                            }
+                        } else {
+                            null
+                        }
+                    )
+                }
+            }
+
             Button(
                 onClick = {
+                    if (vm.isAdd && sendFeeding) {
+                        val myDate = DateFormat.getInstance().format(date)
+//                        val testTime = DateFormat.getTimeInstance(DateFormat.SHORT).format(date)
+                        val sb = StringBuilder("$myDate\n$quantity${units.abbreviation}")
+                        if (notes.isNotBlank()) {
+                            sb.append("\n----\n$notes")
+                        }
+
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, sb.toString())
+                        }
+                        val chooser = Intent.createChooser(intent, "Send Feeding via")
+                        context.startActivity(chooser)
+                    }
                     vm.saveFeeding()
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -229,6 +286,7 @@ fun EditScreen(
                 Text(text = label)
             }
         }
+
         if (!vm.isAdd) {
             TextButton(
                 modifier = Modifier
