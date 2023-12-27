@@ -1,5 +1,6 @@
 package com.nicholasfragiskatos.feedme.ui.screens.home
 
+import android.text.format.DateFormat
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -30,12 +31,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
+import com.nicholasfragiskatos.feedme.utils.DateUtils
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
-import java.text.SimpleDateFormat
 
 @Composable
 fun FeedingItem(
@@ -45,10 +47,8 @@ fun FeedingItem(
 ) {
 
     var expanded by remember { mutableStateOf(false) }
-
     var isExpandable by remember { mutableStateOf(false) }
-
-    val formatter = remember { SimpleDateFormat("h:mm a") }
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -98,14 +98,18 @@ fun FeedingItem(
                         )
                     }
 
-                    val date = formatter.format(feeding.date)
-
                     Column(
                         modifier = Modifier.fillMaxHeight(),
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Text(text = date, style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = DateUtils.getFormattedTime(
+                                feeding.date,
+                                DateFormat.is24HourFormat(context)
+                            ),
+                            style = MaterialTheme.typography.titleMedium
+                        )
                         if (isExpandable || expanded) {
                             FilledIconToggleButton(
                                 checked = expanded, onCheckedChange = {

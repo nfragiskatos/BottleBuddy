@@ -1,7 +1,7 @@
 package com.nicholasfragiskatos.feedme.ui.screens.edit
 
 import android.content.Intent
-import android.icu.text.DateFormat
+import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,10 +50,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nicholasfragiskatos.feedme.R
 import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
-import com.nicholasfragiskatos.feedme.utils.convertUtcToLocalDate
+import com.nicholasfragiskatos.feedme.utils.DateUtils
 import java.util.Date
 
-// TODO: Unify date handling throughout the app
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditScreen(
@@ -74,7 +73,7 @@ fun EditScreen(
 
     val formattedDate by remember {
         derivedStateOf {
-            DateFormat.getInstance().format(date)
+            DateUtils.getFormattedDateWithTime(date, DateFormat.is24HourFormat(context))
         }
     }
 
@@ -82,7 +81,7 @@ fun EditScreen(
     val datePickerState = rememberDatePickerState(date.time)
 
     var showTimePicker by remember { mutableStateOf(false) }
-    val timePickerState = rememberTimePickerState(date.hours, date.minutes, true)
+    val timePickerState = rememberTimePickerState(date.hours, date.minutes, DateFormat.is24HourFormat(context))
 
     if (showDatePicker) {
         DatePickerDialog(
@@ -91,7 +90,7 @@ fun EditScreen(
                 TextButton(
                     onClick = {
                         val selectedDate =
-                            convertUtcToLocalDate(datePickerState.selectedDateMillis!!)
+                            DateUtils.convertUtcToLocalDate(datePickerState.selectedDateMillis!!)
                         vm.onEvent(AddEditFeedingEvent.ChangeDate(selectedDate))
                         showDatePicker = false
                     },
@@ -263,9 +262,7 @@ fun EditScreen(
             Button(
                 onClick = {
                     if (vm.isAdd && sendFeeding) {
-                        val myDate = DateFormat.getInstance().format(date)
-//                        val testTime = DateFormat.getTimeInstance(DateFormat.SHORT).format(date)
-                        val sb = StringBuilder("$myDate\n$quantity${units.abbreviation}")
+                        val sb = StringBuilder("$formattedDate\n$quantity${units.abbreviation}")
                         if (notes.isNotBlank()) {
                             sb.append("\n----\n$notes")
                         }

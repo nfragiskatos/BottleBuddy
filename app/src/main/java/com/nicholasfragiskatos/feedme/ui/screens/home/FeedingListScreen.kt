@@ -36,8 +36,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nicholasfragiskatos.feedme.ui.screens.NavigationItem
+import com.nicholasfragiskatos.feedme.utils.DateUtils
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -49,9 +49,7 @@ fun FeedingListScreen(
     val loading by vm.loading.collectAsStateWithLifecycle()
     val preferences by vm.preferences.collectAsStateWithLifecycle()
     var isProgressExpanded by remember { mutableStateOf(true) }
-    val testGraphPoints by vm.graphPoints.collectAsStateWithLifecycle()
-
-    val dateTimeFormatter = remember { DateTimeFormatter.ofPattern("EEE, LLL dd, YYYY") }
+    val graphPoints by vm.graphPoints.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -68,7 +66,7 @@ fun FeedingListScreen(
         }
         if (isProgressExpanded) {
             CumulativeGoalGraph(
-                pointsData = testGraphPoints,
+                pointsData = graphPoints,
                 preferences = preferences,
             )
         }
@@ -90,7 +88,7 @@ fun FeedingListScreen(
                     }
 
                     stickyHeader {
-                        val format1 = date.format(dateTimeFormatter)
+                        val formattedDate = DateUtils.getFormattedDate(date)
 
                         Row(
                             modifier = Modifier
@@ -101,7 +99,7 @@ fun FeedingListScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = format1,
+                                text = formattedDate,
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.secondary,
                             )
