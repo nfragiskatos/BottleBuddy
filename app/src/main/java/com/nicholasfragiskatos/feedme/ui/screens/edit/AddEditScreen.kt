@@ -53,7 +53,7 @@ import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
 import com.nicholasfragiskatos.feedme.utils.convertUtcToLocalDate
 import java.util.Date
 
-// TODO: Add notify contact of updated/new feeding
+// TODO: Unify date handling throughout the app
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditScreen(
