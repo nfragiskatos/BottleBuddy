@@ -37,6 +37,9 @@ object DateUtils {
     fun getFormattedTime(date: Date, is24HourFormat: Boolean = false): String =
         if (is24HourFormat) dateFormatTime24.format(date) else dateFormatTime.format(date)
 
+    fun getFormattedTime(date: LocalDateTime, is24HourFormat: Boolean = false): String =
+        getFormattedTime(Date.from(date.atZone(ZoneId.systemDefault()).toInstant()), is24HourFormat)
+
     fun getFormattedDate(date: LocalDateTime): String =
         getFormattedDate(Date.from(date.atZone(ZoneId.systemDefault()).toInstant()))
 
