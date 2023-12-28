@@ -97,7 +97,7 @@ fun FeedingListScreen(
                     stickyHeader {
                         Header(
                             date = date,
-                            dayTotal = "Total: %.2f${preferences.displayUnit.abbreviation}".format(
+                            dayTotal = "%.2f${preferences.displayUnit.abbreviation}".format(
                                 dayTotal
                             )
                         ) {
