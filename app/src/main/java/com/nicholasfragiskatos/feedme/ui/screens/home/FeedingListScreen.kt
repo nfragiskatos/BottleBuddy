@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -138,10 +140,10 @@ fun FeedingListScreen(
                         }
                     }
 
-                    items(
+                    itemsIndexed(
                         items = feedings,
-                        key = { it.id }
-                    ) { feeding ->
+                        key = {_, feeding -> feeding.id }
+                    ) { index, feeding ->
 
                         val anchorState = remember {
                             AnchoredDraggableState(
@@ -180,6 +182,10 @@ fun FeedingListScreen(
                                 }
                             }
                         )
+
+                        if (index < feedings.lastIndex) {
+                            Divider(thickness = 1.dp)
+                        }
                     }
                 }
             }
