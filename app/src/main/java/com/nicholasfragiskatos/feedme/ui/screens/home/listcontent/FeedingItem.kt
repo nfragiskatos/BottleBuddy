@@ -1,4 +1,4 @@
-package com.nicholasfragiskatos.feedme.ui.screens.home
+package com.nicholasfragiskatos.feedme.ui.screens.home.listcontent
 
 import android.text.format.DateFormat
 import androidx.compose.animation.animateContentSize

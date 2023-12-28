@@ -2,32 +2,23 @@ package com.nicholasfragiskatos.feedme.ui.screens.home
 
 import android.content.Intent
 import android.text.format.DateFormat
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.Button
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,15 +27,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nicholasfragiskatos.feedme.ui.screens.NavigationItem
+import com.nicholasfragiskatos.feedme.ui.screens.home.draggable.DraggableFeedingItem
+import com.nicholasfragiskatos.feedme.ui.screens.home.draggable.FeedingDeleteAction
+import com.nicholasfragiskatos.feedme.ui.screens.home.draggable.FeedingDragAnchors
+import com.nicholasfragiskatos.feedme.ui.screens.home.graph.CumulativeGoalGraph
+import com.nicholasfragiskatos.feedme.ui.screens.home.listcontent.FeedingItem
+import com.nicholasfragiskatos.feedme.ui.screens.home.listcontent.Header
 import com.nicholasfragiskatos.feedme.utils.DateUtils
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FeedingListScreen(
     navController: NavController,
@@ -56,6 +54,9 @@ fun FeedingListScreen(
     var isProgressExpanded by remember { mutableStateOf(true) }
     val graphPoints by vm.graphPoints.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val density = LocalDensity.current
+    val defaultActionSize = 80.dp
+    val startActionSizePx = with(density) { defaultActionSize.toPx() }
 
     Column(
         modifier = Modifier
@@ -77,7 +78,7 @@ fun FeedingListScreen(
             )
         }
         if (grouping.isEmpty() && !loading) {
-            MyEmptyListView(navController)
+            EmptyFeedingListView(navController)
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -94,69 +95,46 @@ fun FeedingListScreen(
                     }
 
                     stickyHeader {
-                        val formattedDate = DateUtils.getFormattedDate(date)
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(color = MaterialTheme.colorScheme.surface)
-                                .padding(8.dp)
+                        Header(
+                            date = date,
+                            dayTotal = "Total: %.2f${preferences.displayUnit.abbreviation}".format(
+                                dayTotal
+                            )
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = formattedDate,
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    color = MaterialTheme.colorScheme.secondary,
-                                )
-
-                                // TODO: Fix mL formatting, probably don't care about decimals. Should create a formatter class
-                                Text(
-                                    text = "Total: %.2f${preferences.displayUnit.abbreviation}".format(
-                                        dayTotal
-                                    ),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
-                            }
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
-                            ) {
-                                IconButton(onClick = {
-
-                                    val is24HourFormat = DateFormat.is24HourFormat(context)
-                                    val total = "%.2f".format(dayTotal)
-                                    val sb = StringBuilder("Summary for ${DateUtils.getFormattedDate(date)}\n")
-                                    for (index in feedings.indices.reversed()) {
-                                        val feeding = feedings[index]
-                                        val quantity = "%.2f".format(UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, preferences.displayUnit))
-                                        sb.append("\n${DateUtils.getFormattedTime(feeding.date, is24HourFormat)} - $quantity${preferences.displayUnit.abbreviation}")
-                                    }
-                                    sb.append("\n------------")
-                                    sb.append("\nTotal: $total${preferences.displayUnit.abbreviation}")
-
-                                    val intent = Intent(Intent.ACTION_SEND).apply {
-                                        type = "text/plain"
-                                        putExtra(
-                                            Intent.EXTRA_TEXT,
-                                            sb.toString()
-                                        )
-                                    }
-                                    val chooser = Intent.createChooser(intent, "Send Feeding via")
-                                    context.startActivity(chooser)
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Share,
-                                        contentDescription = "Share Daily Summary"
+                            val is24HourFormat = DateFormat.is24HourFormat(context)
+                            val total = "%.2f".format(dayTotal)
+                            val sb =
+                                StringBuilder("Summary for ${DateUtils.getFormattedDate(date)}\n")
+                            for (index in feedings.indices.reversed()) {
+                                val feeding = feedings[index]
+                                val quantity = "%.2f".format(
+                                    UnitUtils.convertMeasurement(
+                                        feeding.quantity,
+                                        feeding.unit,
+                                        preferences.displayUnit
                                     )
-                                }
+                                )
+                                sb.append(
+                                    "\n${
+                                        DateUtils.getFormattedTime(
+                                            feeding.date,
+                                            is24HourFormat
+                                        )
+                                    } - $quantity${preferences.displayUnit.abbreviation}"
+                                )
                             }
+                            sb.append("\n------------")
+                            sb.append("\nTotal: $total${preferences.displayUnit.abbreviation}")
+
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    sb.toString()
+                                )
+                            }
+                            val chooser = Intent.createChooser(intent, "Send Feeding via")
+                            context.startActivity(chooser)
                         }
                     }
 
@@ -164,61 +142,47 @@ fun FeedingListScreen(
                         items = feedings,
                         key = { it.id }
                     ) { feeding ->
-                        val state = rememberDismissState(
-                            confirmValueChange = {
-                                if (it == DismissValue.DismissedToEnd) {
-                                    vm.deleteFeeding(feeding)
-                                    true
-                                } else
-                                    false
-                            }
-                        )
 
-                        SwipeToDismiss(
-                            directions = setOf(DismissDirection.StartToEnd),
-                            state = state,
-                            background = {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(MaterialTheme.colorScheme.error)
-                                        .padding(16.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete Feeding Item",
-                                        tint = MaterialTheme.colorScheme.onError,
-                                        modifier = Modifier.align(
-                                            Alignment.CenterStart
-                                        )
-                                    )
-                                }
-                            }, dismissContent = {
+                        val anchorState = remember {
+                            AnchoredDraggableState(
+                                initialValue = FeedingDragAnchors.CENTER,
+                                anchors = DraggableAnchors {
+                                    FeedingDragAnchors.START at -startActionSizePx
+                                    FeedingDragAnchors.CENTER at 0f
+                                },
+                                positionalThreshold = { distance: Float -> distance * 0.5f },
+                                velocityThreshold = { with(density) { 100.dp.toPx() } },
+                                animationSpec = tween()
+
+                            )
+                        }
+
+                        DraggableFeedingItem(
+                            state = anchorState,
+                            content = {
                                 FeedingItem(feeding = feeding, preferences.displayUnit) {
                                     navController.navigate(NavigationItem.Edit.buildRoute(feeding.id))
                                 }
-                            })
+                            },
+                            feedingStartAction = {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .align(Alignment.CenterStart)
+                                ) {
+                                    FeedingDeleteAction(
+                                        modifier = Modifier
+                                            .width(defaultActionSize)
+                                            .fillMaxHeight()
+                                    ) {
+                                        vm.deleteFeeding(feeding)
+                                    }
+                                }
+                            }
+                        )
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun MyEmptyListView(navController: NavController) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "No bottles have been counted yet.")
-        Button(onClick = {
-            navController.navigate(
-                NavigationItem.Edit.buildRoute(0L)
-            )
-        }) {
-            Text(text = "Add your first bottle now!")
         }
     }
 }

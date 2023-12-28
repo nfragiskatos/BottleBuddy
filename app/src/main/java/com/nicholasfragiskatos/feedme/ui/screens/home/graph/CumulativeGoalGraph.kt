@@ -1,4 +1,4 @@
-package com.nicholasfragiskatos.feedme.ui.screens.home
+package com.nicholasfragiskatos.feedme.ui.screens.home.graph
 
 import android.graphics.Typeface
 import androidx.compose.foundation.layout.fillMaxWidth
