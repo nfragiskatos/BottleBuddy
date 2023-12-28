@@ -2,6 +2,8 @@ package com.nicholasfragiskatos.feedme.ui.screens.home
 
 import android.content.Intent
 import android.text.format.DateFormat
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.AnchoredDraggableState
@@ -15,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
@@ -23,9 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -53,12 +52,12 @@ fun FeedingListScreen(
     val grouping by vm.grouping.collectAsStateWithLifecycle()
     val loading by vm.loading.collectAsStateWithLifecycle()
     val preferences by vm.preferences.collectAsStateWithLifecycle()
-    var isProgressExpanded by remember { mutableStateOf(true) }
     val graphPoints by vm.graphPoints.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val density = LocalDensity.current
     val defaultActionSize = 80.dp
     val startActionSizePx = with(density) { defaultActionSize.toPx() }
+    val animationState = remember { MutableTransitionState(true) }
 
     Column(
         modifier = Modifier
@@ -69,16 +68,18 @@ fun FeedingListScreen(
             horizontalArrangement = Arrangement.End,
             modifier = Modifier.fillMaxWidth()
         ) {
-            TextButton(onClick = { isProgressExpanded = !isProgressExpanded }) {
-                Text(text = "${if (isProgressExpanded) "Hide" else "Show"} Today's Progress")
+            TextButton(onClick = { animationState.targetState = !animationState.targetState }) {
+                Text(text = "${if (animationState.currentState) "Hide" else "Show"} Today's Progress")
             }
         }
-        if (isProgressExpanded) {
+
+        AnimatedVisibility(visibleState = animationState) {
             CumulativeGoalGraph(
                 pointsData = graphPoints,
                 preferences = preferences,
             )
         }
+
         if (grouping.isEmpty() && !loading) {
             EmptyFeedingListView(navController)
         } else {
@@ -142,7 +143,7 @@ fun FeedingListScreen(
 
                     itemsIndexed(
                         items = feedings,
-                        key = {_, feeding -> feeding.id }
+                        key = { _, feeding -> feeding.id }
                     ) { index, feeding ->
 
                         val anchorState = remember {
