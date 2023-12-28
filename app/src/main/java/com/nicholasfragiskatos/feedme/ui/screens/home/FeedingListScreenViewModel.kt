@@ -7,14 +7,14 @@ import com.nicholasfragiskatos.feedme.domain.model.FeedMePreferences
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
+import com.nicholasfragiskatos.feedme.ui.screens.UiState
 import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -27,13 +27,18 @@ class FeedingListScreenViewModel @Inject constructor(
     preferenceManager: PreferenceManager
 ) : ViewModel() {
 
-    private val _grouping: MutableStateFlow<Map<LocalDateTime, List<Feeding>>> = MutableStateFlow(
-        emptyMap(),
+    val groupState: StateFlow<UiState<Map<LocalDateTime, List<Feeding>>>> = repository.getFeedings().map {
+        val groupBy = it.groupBy { feeding ->
+            val toLocalDate =
+                feeding.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            toLocalDate.atStartOfDay()
+        }
+        UiState(groupBy, false)
+    }.stateIn(
+        scope = viewModelScope,
+        initialValue = UiState(emptyMap(), true),
+        started = SharingStarted.WhileSubscribed(5000)
     )
-    val grouping: StateFlow<Map<LocalDateTime, List<Feeding>>> = _grouping.asStateFlow()
-
-    private val _loading: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val loading: StateFlow<Boolean> = _loading.asStateFlow()
 
     private val feedingsForToday = repository.getFeedingsForToday().stateIn(
         scope = viewModelScope,
@@ -56,24 +61,6 @@ class FeedingListScreenViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MutableList(1440) {
         Point(it.toFloat(), 0.0f)
     })
-
-    init {
-        viewModelScope.launch {
-            _loading.value = true
-            repository.getFeedings()
-                .collect {
-
-                    val groupBy: Map<LocalDateTime, List<Feeding>> = it.groupBy { feeding ->
-                        val toLocalDate =
-                            feeding.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                        toLocalDate.atStartOfDay()
-                    }
-                    _grouping.value = groupBy
-                    _loading.value = false
-                }
-
-        }
-    }
 
     fun deleteFeeding(feeding: Feeding) {
         viewModelScope.launch {

@@ -49,8 +49,7 @@ fun FeedingListScreen(
     navController: NavController,
     vm: FeedingListScreenViewModel = hiltViewModel(),
 ) {
-    val grouping by vm.grouping.collectAsStateWithLifecycle()
-    val loading by vm.loading.collectAsStateWithLifecycle()
+    val groupState by vm.groupState.collectAsStateWithLifecycle()
     val preferences by vm.preferences.collectAsStateWithLifecycle()
     val graphPoints by vm.graphPoints.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -80,14 +79,14 @@ fun FeedingListScreen(
             )
         }
 
-        if (grouping.isEmpty() && !loading) {
+        if (!groupState.isLoading && groupState.data.isEmpty()) {
             EmptyFeedingListView(navController)
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = rememberLazyListState()
             ) {
-                grouping.forEach { (date, feedings) ->
+                groupState.data.forEach { (date, feedings) ->
 
                     val dayTotal = feedings.sumOf { feeding ->
                         UnitUtils.convertMeasurement(
