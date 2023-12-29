@@ -63,6 +63,7 @@ fun EditScreen(
     val notes by vm.notes.collectAsStateWithLifecycle()
     val units by vm.units.collectAsStateWithLifecycle()
     val date by vm.date.collectAsStateWithLifecycle()
+    val preferences by vm.preferences.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var sendFeeding by remember { mutableStateOf(true) }
 
@@ -260,7 +261,7 @@ fun EditScreen(
                     vm.saveFeeding(
                         generateSummary = sendFeeding,
                         is24HourFormat = DateFormat.is24HourFormat(context),
-                        displayUnit = units
+                        displayUnit = preferences.displayUnit
                     ) { summary ->
                         if (summary != null) {
                             val intent = Intent(Intent.ACTION_SEND).apply {

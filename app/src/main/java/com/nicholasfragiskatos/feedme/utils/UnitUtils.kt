@@ -2,6 +2,7 @@ package com.nicholasfragiskatos.feedme.utils
 
 
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
+import kotlin.math.roundToInt
 
 
 object UnitUtils {
@@ -53,4 +54,11 @@ object UnitUtils {
 
         return sb.toString()
     }
+
+    fun format(value: Double, unit: UnitOfMeasurement): String =
+        if (unit == UnitOfMeasurement.MILLILITER) {
+            value.roundToInt().toString()
+        } else {
+            "%.2f".format(value)
+        }
 }

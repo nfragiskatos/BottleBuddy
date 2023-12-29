@@ -3,15 +3,19 @@ package com.nicholasfragiskatos.feedme.ui.screens.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nicholasfragiskatos.feedme.domain.model.FeedMePreferences
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
 import com.nicholasfragiskatos.feedme.utils.DateUtils
+import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -20,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditScreenViewModel @Inject constructor(
     private val repository: FeedingRepository,
+    preferenceManager: PreferenceManager,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -39,6 +44,16 @@ class AddEditScreenViewModel @Inject constructor(
 
     val isAdd
         get() = _currentFeedingId.value == 0L
+
+    val preferences = preferenceManager.getPreferences().stateIn(
+        scope = viewModelScope,
+        initialValue = FeedMePreferences(
+            50f,
+            UnitOfMeasurement.MILLILITER,
+            UnitOfMeasurement.MILLILITER
+        ),
+        started = SharingStarted.WhileSubscribed(5000)
+    )
 
     init {
         savedStateHandle.get<Long>("feedingId")?.let { feedingId ->
@@ -66,34 +81,46 @@ class AddEditScreenViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             var summary: String? = null
+            val quantityNumeric = quantity.value.toDouble()
+
             if (generateSummary) {
+                val alternateDisplayUnit = if (displayUnit == UnitOfMeasurement.MILLILITER) UnitOfMeasurement.OUNCE else UnitOfMeasurement.MILLILITER
                 val feedingsForDay = repository.getFeedingsByDay(date.value)
-                val existingTotal = feedingsForDay.sumOf {
+                val feedingsForDayTotal = feedingsForDay.sumOf {
                     UnitUtils.convertMeasurement(
                         it.quantity,
                         it.unit,
                         displayUnit
                     )
                 }
-                val dayTotal = existingTotal + UnitUtils.convertMeasurement(
-                    quantity.value.toDouble(),
+                val dayTotal = feedingsForDayTotal + UnitUtils.convertMeasurement(
+                    quantityNumeric,
                     units.value,
                     displayUnit
                 )
-                val formattedDate = DateUtils.getFormattedDateWithTime(date.value, is24HourFormat)
-                val dayTotalDisplay = "%.2f".format(dayTotal)
-                val sb =
-                    StringBuilder("$formattedDate\nThis Feeding: ${quantity.value}${units.value.abbreviation}\nDay Total: $dayTotalDisplay")
+                val dayTotalDisplay = UnitUtils.format(dayTotal, displayUnit)
+
+                val alternateDayTotal = UnitUtils.convertMeasurement(dayTotal, displayUnit, alternateDisplayUnit)
+                val alternateDayTotalDisplay = UnitUtils.format(alternateDayTotal, alternateDisplayUnit)
+
+                val normalizedQuantity = UnitUtils.convertMeasurement(quantityNumeric, units.value, displayUnit)
+                val normalizedQuantityDisplay = UnitUtils.format(normalizedQuantity, displayUnit)
+
+                val sb = StringBuilder(DateUtils.getFormattedDateWithTime(date.value, is24HourFormat))
+                sb.append("\nThis Feeding: ${normalizedQuantityDisplay}${displayUnit.abbreviation}")
+                sb.append("\nDay Total: $dayTotalDisplay${displayUnit.abbreviation} ($alternateDayTotalDisplay${alternateDisplayUnit.abbreviation})")
+
                 if (notes.value.isNotBlank()) {
                     sb.append("\n----\n$notes")
                 }
+
                 summary = sb.toString()
             }
 
             val toSave = Feeding(
                 id = _currentFeedingId.value,
                 date = date.value,
-                quantity = quantity.value.toDouble(),
+                quantity = quantityNumeric,
                 unit = units.value,
                 notes = notes.value,
             )
