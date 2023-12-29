@@ -13,7 +13,6 @@ import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -112,34 +111,39 @@ class FeedingListScreenViewModel @Inject constructor(
             _daySummaryState.value = _daySummaryState.value.copy(date = date, loading = true)
             val feedings = groupState.value.data[date]
             var dayTotal = 0.0
+            val alternateDisplayUnit =
+                if (displayUnit == UnitOfMeasurement.MILLILITER) UnitOfMeasurement.OUNCE else UnitOfMeasurement.MILLILITER
+
             feedings?.let {
-                val sb =
-                    StringBuilder("Summary for ${DateUtils.getFormattedDate(date)}\n")
-                for (index in feedings.indices.reversed()) {
-                    val feeding = feedings[index]
+                val sb = StringBuilder("Summary for ${DateUtils.getFormattedDate(date)}\n")
+                for (index in it.indices.reversed()) {
+                    val feeding = it[index]
                     val quantity = UnitUtils.convertMeasurement(
                         feeding.quantity,
                         feeding.unit,
                         displayUnit
                     )
+                    val quantityDisplay = UnitUtils.format(quantity, displayUnit)
+
                     dayTotal += quantity
-                    val quantityDisplay = "%.2f".format(quantity)
-                    sb.append(
-                        "\n${
-                            DateUtils.getFormattedTime(
-                                feeding.date,
-                                is24HourFormat
-                            )
-                        } - $quantityDisplay${displayUnit.abbreviation}"
-                    )
+
+                    val formattedDate = DateUtils.getFormattedTime(feeding.date, is24HourFormat)
+                    sb.append("\n$formattedDate - $quantityDisplay${displayUnit.abbreviation}")
                 }
                 sb.append("\n------------")
 
-                val total = "%.2f".format(dayTotal)
-                sb.append("\nTotal: $total${displayUnit.abbreviation}")
-                delay(2000)
+                val dayTotalDisplay = UnitUtils.format(dayTotal, displayUnit)
+
+                val alternateDayTotal =
+                    UnitUtils.convertMeasurement(dayTotal, displayUnit, alternateDisplayUnit)
+                val alternateDayTotalDisplay =
+                    UnitUtils.format(alternateDayTotal, alternateDisplayUnit)
+
+                sb.append("\nTotal: $dayTotalDisplay${displayUnit.abbreviation} ($alternateDayTotalDisplay${alternateDisplayUnit.abbreviation})")
+
                 _daySummaryState.value =
                     _daySummaryState.value.copy(loading = false, date = null)
+
                 withContext(Dispatchers.Main) {
                     onSuccess(sb.toString())
                 }
