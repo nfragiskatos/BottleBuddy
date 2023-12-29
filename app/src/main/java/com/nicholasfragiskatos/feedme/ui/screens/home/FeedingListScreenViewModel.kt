@@ -8,11 +8,15 @@ import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
 import com.nicholasfragiskatos.feedme.ui.screens.UiState
+import com.nicholasfragiskatos.feedme.utils.DateUtils
 import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -27,18 +31,19 @@ class FeedingListScreenViewModel @Inject constructor(
     preferenceManager: PreferenceManager
 ) : ViewModel() {
 
-    val groupState: StateFlow<UiState<Map<LocalDateTime, List<Feeding>>>> = repository.getFeedings().map {
-        val groupBy = it.groupBy { feeding ->
-            val toLocalDate =
-                feeding.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-            toLocalDate.atStartOfDay()
-        }
-        UiState(groupBy, false)
-    }.stateIn(
-        scope = viewModelScope,
-        initialValue = UiState(emptyMap(), true),
-        started = SharingStarted.WhileSubscribed(5000)
-    )
+    val groupState: StateFlow<UiState<Map<LocalDateTime, List<Feeding>>>> =
+        repository.getFeedings().map {
+            val groupBy = it.groupBy { feeding ->
+                val toLocalDate =
+                    feeding.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                toLocalDate.atStartOfDay()
+            }
+            UiState(groupBy, false)
+        }.stateIn(
+            scope = viewModelScope,
+            initialValue = UiState(emptyMap(), true),
+            started = SharingStarted.WhileSubscribed(5000)
+        )
 
     private val feedingsForToday = repository.getFeedingsForToday().stateIn(
         scope = viewModelScope,
@@ -56,11 +61,16 @@ class FeedingListScreenViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000)
     )
 
-    val graphPoints : StateFlow<List<Point>> = feedingsForToday.combine(preferences) { feedings, prefs ->
-        createPoints(feedings, prefs.displayUnit)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MutableList(1440) {
-        Point(it.toFloat(), 0.0f)
-    })
+    val graphPoints: StateFlow<List<Point>> =
+        feedingsForToday.combine(preferences) { feedings, prefs ->
+            createPoints(feedings, prefs.displayUnit)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MutableList(1440) {
+            Point(it.toFloat(), 0.0f)
+        })
+
+    private val _daySummaryState: MutableStateFlow<DaySummaryState> =
+        MutableStateFlow(DaySummaryState())
+    val daySummaryState: StateFlow<DaySummaryState> = _daySummaryState.asStateFlow()
 
     fun deleteFeeding(feeding: Feeding) {
         viewModelScope.launch {
@@ -88,5 +98,55 @@ class FeedingListScreenViewModel @Inject constructor(
             list[index] = list[index].copy(y = prev + cur)
         }
         return list
+    }
+
+    fun generateDaySummary(
+        date: LocalDateTime,
+        is24HourFormat: Boolean,
+        displayUnit: UnitOfMeasurement
+    ) {
+        viewModelScope.launch(Dispatchers.Default) {
+            _daySummaryState.value = _daySummaryState.value.copy(date = date, loading = true)
+            val feedings = groupState.value.data[date]
+            var dayTotal = 0.0
+            feedings?.let {
+                val sb =
+                    StringBuilder("Summary for ${DateUtils.getFormattedDate(date)}\n")
+                for (index in feedings.indices.reversed()) {
+                    val feeding = feedings[index]
+                    val quantity = UnitUtils.convertMeasurement(
+                        feeding.quantity,
+                        feeding.unit,
+                        displayUnit
+                    )
+                    dayTotal += quantity
+                    val quantityDisplay = "%.2f".format(quantity)
+                    sb.append(
+                        "\n${
+                            DateUtils.getFormattedTime(
+                                feeding.date,
+                                is24HourFormat
+                            )
+                        } - $quantityDisplay${displayUnit.abbreviation}"
+                    )
+                }
+                sb.append("\n------------")
+
+                val total = "%.2f".format(dayTotal)
+                sb.append("\nTotal: $total${displayUnit.abbreviation}")
+
+                _daySummaryState.value =
+                    _daySummaryState.value.copy(report = sb.toString(), needsHandled = true)
+            }
+        }
+    }
+
+    fun clearReport() {
+        _daySummaryState.value = _daySummaryState.value.copy(
+            date = null,
+            report = null,
+            loading = false,
+            needsHandled = false
+        )
     }
 }

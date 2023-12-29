@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,7 +40,6 @@ import com.nicholasfragiskatos.feedme.ui.screens.home.draggable.FeedingDragAncho
 import com.nicholasfragiskatos.feedme.ui.screens.home.graph.CumulativeGoalGraph
 import com.nicholasfragiskatos.feedme.ui.screens.home.listcontent.FeedingItem
 import com.nicholasfragiskatos.feedme.ui.screens.home.listcontent.Header
-import com.nicholasfragiskatos.feedme.utils.DateUtils
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -52,11 +51,25 @@ fun FeedingListScreen(
     val groupState by vm.groupState.collectAsStateWithLifecycle()
     val preferences by vm.preferences.collectAsStateWithLifecycle()
     val graphPoints by vm.graphPoints.collectAsStateWithLifecycle()
+    val daySummaryState by vm.daySummaryState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val density = LocalDensity.current
     val defaultActionSize = 80.dp
     val startActionSizePx = with(density) { defaultActionSize.toPx() }
     val animationState = remember { MutableTransitionState(true) }
+
+    if (daySummaryState.needsHandled && daySummaryState.report != null) {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(
+                Intent.EXTRA_TEXT,
+                daySummaryState.report
+            )
+        }
+        val chooser = Intent.createChooser(intent, "Send Feeding via")
+        vm.clearReport()
+        context.startActivity(chooser)
+    }
 
     Column(
         modifier = Modifier
@@ -101,42 +114,10 @@ fun FeedingListScreen(
                             date = date,
                             dayTotal = "%.2f${preferences.displayUnit.abbreviation}".format(
                                 dayTotal
-                            )
+                            ),
+                            isLoading = daySummaryState.loading && daySummaryState.date == date
                         ) {
-                            val is24HourFormat = DateFormat.is24HourFormat(context)
-                            val total = "%.2f".format(dayTotal)
-                            val sb =
-                                StringBuilder("Summary for ${DateUtils.getFormattedDate(date)}\n")
-                            for (index in feedings.indices.reversed()) {
-                                val feeding = feedings[index]
-                                val quantity = "%.2f".format(
-                                    UnitUtils.convertMeasurement(
-                                        feeding.quantity,
-                                        feeding.unit,
-                                        preferences.displayUnit
-                                    )
-                                )
-                                sb.append(
-                                    "\n${
-                                        DateUtils.getFormattedTime(
-                                            feeding.date,
-                                            is24HourFormat
-                                        )
-                                    } - $quantity${preferences.displayUnit.abbreviation}"
-                                )
-                            }
-                            sb.append("\n------------")
-                            sb.append("\nTotal: $total${preferences.displayUnit.abbreviation}")
-
-                            val intent = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(
-                                    Intent.EXTRA_TEXT,
-                                    sb.toString()
-                                )
-                            }
-                            val chooser = Intent.createChooser(intent, "Send Feeding via")
-                            context.startActivity(chooser)
+                            vm.generateDaySummary(date, DateFormat.is24HourFormat(context), preferences.displayUnit)
                         }
                     }
 
@@ -184,7 +165,7 @@ fun FeedingListScreen(
                         )
 
                         if (index < feedings.lastIndex) {
-                            Divider(thickness = 1.dp)
+                            HorizontalDivider(thickness = 1.dp)
                         }
                     }
                 }
