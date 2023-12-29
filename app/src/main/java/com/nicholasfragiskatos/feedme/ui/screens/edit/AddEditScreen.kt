@@ -63,13 +63,8 @@ fun EditScreen(
     val notes by vm.notes.collectAsStateWithLifecycle()
     val units by vm.units.collectAsStateWithLifecycle()
     val date by vm.date.collectAsStateWithLifecycle()
-    val finished = vm.finished.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var sendFeeding by remember { mutableStateOf(true) }
-
-    if (finished.value) {
-        navController.navigateUp()
-    }
 
     val formattedDate by remember {
         derivedStateOf {
@@ -81,7 +76,8 @@ fun EditScreen(
     val datePickerState = rememberDatePickerState(date.time)
 
     var showTimePicker by remember { mutableStateOf(false) }
-    val timePickerState = rememberTimePickerState(date.hours, date.minutes, DateFormat.is24HourFormat(context))
+    val timePickerState =
+        rememberTimePickerState(date.hours, date.minutes, DateFormat.is24HourFormat(context))
 
     if (showDatePicker) {
         DatePickerDialog(
@@ -261,20 +257,21 @@ fun EditScreen(
 
             Button(
                 onClick = {
-                    if (vm.isAdd && sendFeeding) {
-                        val sb = StringBuilder("$formattedDate\n$quantity${units.abbreviation}")
-                        if (notes.isNotBlank()) {
-                            sb.append("\n----\n$notes")
+                    vm.saveFeeding(
+                        generateSummary = sendFeeding,
+                        is24HourFormat = DateFormat.is24HourFormat(context),
+                        displayUnit = units
+                    ) { summary ->
+                        if (summary != null) {
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, summary)
+                            }
+                            val chooser = Intent.createChooser(intent, "Send Feeding via")
+                            context.startActivity(chooser)
                         }
-
-                        val intent = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TEXT, sb.toString())
-                        }
-                        val chooser = Intent.createChooser(intent, "Send Feeding via")
-                        context.startActivity(chooser)
+                        navController.navigateUp()
                     }
-                    vm.saveFeeding()
                 },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = quantity.isNotBlank()
@@ -289,7 +286,11 @@ fun EditScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.End),
-                onClick = { vm.deleteFeeding() },
+                onClick = {
+                    vm.deleteFeeding {
+                        navController.navigateUp()
+                    }
+                },
             ) {
                 Text(
                     text = "Delete",

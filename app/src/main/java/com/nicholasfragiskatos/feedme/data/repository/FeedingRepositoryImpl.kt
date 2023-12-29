@@ -38,7 +38,15 @@ class FeedingRepositoryImpl @Inject constructor(
         val from = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
         val to =
             Date.from(localDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant())
-        return dao.getFeedingsByDateRange(from, to)
+        return dao.getFeedingsListFlowByDateRange(from, to)
             .map { feedings -> feedings.map { feeding -> feeding.toFeeding() } }
+    }
+
+    override suspend fun getFeedingsByDay(date: Date): List<Feeding> {
+        val localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+        val from = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+        val to =
+            Date.from(localDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant())
+        return dao.getFeedingsListByDateRange(from, to).map { it.toFeeding() }
     }
 }

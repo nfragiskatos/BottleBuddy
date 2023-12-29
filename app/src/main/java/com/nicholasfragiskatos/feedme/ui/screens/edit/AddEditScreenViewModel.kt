@@ -6,13 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
+import com.nicholasfragiskatos.feedme.utils.DateUtils
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -36,10 +37,6 @@ class AddEditScreenViewModel @Inject constructor(
     private val _notes = MutableStateFlow("")
     val notes: StateFlow<String> = _notes
 
-    private val _finished = MutableStateFlow(false)
-    val finished: StateFlow<Boolean>
-        get() = _finished.asStateFlow()
-
     val isAdd
         get() = _currentFeedingId.value == 0L
 
@@ -61,8 +58,38 @@ class AddEditScreenViewModel @Inject constructor(
         }
     }
 
-    fun saveFeeding() {
+    fun saveFeeding(
+        generateSummary: Boolean = false,
+        is24HourFormat: Boolean = false,
+        displayUnit: UnitOfMeasurement = UnitOfMeasurement.MILLILITER,
+        onSuccess: (String?) -> Unit = {}
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
+            var summary: String? = null
+            if (generateSummary) {
+                val feedingsForDay = repository.getFeedingsByDay(date.value)
+                val existingTotal = feedingsForDay.sumOf {
+                    UnitUtils.convertMeasurement(
+                        it.quantity,
+                        it.unit,
+                        displayUnit
+                    )
+                }
+                val dayTotal = existingTotal + UnitUtils.convertMeasurement(
+                    quantity.value.toDouble(),
+                    units.value,
+                    displayUnit
+                )
+                val formattedDate = DateUtils.getFormattedDateWithTime(date.value, is24HourFormat)
+                val dayTotalDisplay = "%.2f".format(dayTotal)
+                val sb =
+                    StringBuilder("$formattedDate\nThis Feeding: ${quantity.value}${units.value.abbreviation}\nDay Total: $dayTotalDisplay")
+                if (notes.value.isNotBlank()) {
+                    sb.append("\n----\n$notes")
+                }
+                summary = sb.toString()
+            }
+
             val toSave = Feeding(
                 id = _currentFeedingId.value,
                 date = date.value,
@@ -71,14 +98,16 @@ class AddEditScreenViewModel @Inject constructor(
                 notes = notes.value,
             )
             repository.saveFeeding(toSave)
-            _finished.value = true
+            withContext(Dispatchers.Main) {
+                onSuccess(summary)
+            }
         }
     }
 
-    fun deleteFeeding() {
+    fun deleteFeeding(onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             repository.deleteFeeding(Feeding(id = _currentFeedingId.value))
-            _finished.value = true
+            onSuccess()
         }
     }
 

@@ -20,7 +20,10 @@ interface FeedingDao {
     suspend fun getFeedingById(id: Long): FeedingEntity?
 
     @Query("SELECT * FROM feedingentity WHERE date BETWEEN :from AND :to")
-    fun getFeedingsByDateRange(from: Date, to: Date): Flow<List<FeedingEntity>>
+    fun getFeedingsListFlowByDateRange(from: Date, to: Date): Flow<List<FeedingEntity>>
+
+    @Query("SELECT * FROM feedingentity WHERE date BETWEEN :from AND :to")
+    fun getFeedingsListByDateRange(from: Date, to: Date): List<FeedingEntity>
 
     @Delete
     suspend fun deleteFeeding(feeding: FeedingEntity)
