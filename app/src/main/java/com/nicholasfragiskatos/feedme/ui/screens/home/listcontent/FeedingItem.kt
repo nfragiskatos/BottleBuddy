@@ -82,14 +82,13 @@ fun FeedingItem(
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
+                        val quantity = UnitUtils.convertMeasurement(
+                            feeding.quantity,
+                            feeding.unit,
+                            displayUnit
+                        )
                         Text(
-                            text = "%.2f".format(
-                                UnitUtils.convertMeasurement(
-                                    feeding.quantity,
-                                    feeding.unit,
-                                    displayUnit
-                                )
-                            ),
+                            text = UnitUtils.format(quantity, displayUnit),
                             style = MaterialTheme.typography.titleLarge,
                         )
                         Text(

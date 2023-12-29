@@ -114,8 +114,8 @@ fun CumulativeGoalGraph(
                                 hour -= 12
                                 ampm = "pm"
                             }
-                            val yval = "%.2f".format(pointsData[x.toInt()].y)
-                            "$hour:$minutesDisplay$ampm, y = $yval${preferences.displayUnit.abbreviation}"
+                            val yVal = UnitUtils.format(pointsData[x.toInt()].y.toDouble(), preferences.displayUnit)// "%.2f".format(pointsData[x.toInt()].y)
+                            "$hour:$minutesDisplay$ampm, y = $yVal${preferences.displayUnit.abbreviation}"
 
                         }
                     )

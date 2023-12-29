@@ -99,9 +99,7 @@ fun FeedingListScreen(
                     stickyHeader {
                         Header(
                             date = date,
-                            dayTotal = "%.2f${preferences.displayUnit.abbreviation}".format(
-                                dayTotal
-                            ),
+                            dayTotal = "${UnitUtils.format(dayTotal, preferences.displayUnit)}${preferences.displayUnit.abbreviation}",
                             isLoading = daySummaryState.loading && daySummaryState.date == date
                         ) {
                             vm.generateDaySummary(date, DateFormat.is24HourFormat(context), preferences.displayUnit) {summary ->
