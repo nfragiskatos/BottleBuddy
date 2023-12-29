@@ -13,6 +13,7 @@ import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.inject.Inject
@@ -103,7 +105,8 @@ class FeedingListScreenViewModel @Inject constructor(
     fun generateDaySummary(
         date: LocalDateTime,
         is24HourFormat: Boolean,
-        displayUnit: UnitOfMeasurement
+        displayUnit: UnitOfMeasurement,
+        onSuccess: (String) -> Unit = {}
     ) {
         viewModelScope.launch(Dispatchers.Default) {
             _daySummaryState.value = _daySummaryState.value.copy(date = date, loading = true)
@@ -134,19 +137,13 @@ class FeedingListScreenViewModel @Inject constructor(
 
                 val total = "%.2f".format(dayTotal)
                 sb.append("\nTotal: $total${displayUnit.abbreviation}")
-
+                delay(2000)
                 _daySummaryState.value =
-                    _daySummaryState.value.copy(report = sb.toString(), needsHandled = true)
+                    _daySummaryState.value.copy(loading = false, date = null)
+                withContext(Dispatchers.Main) {
+                    onSuccess(sb.toString())
+                }
             }
         }
-    }
-
-    fun clearReport() {
-        _daySummaryState.value = _daySummaryState.value.copy(
-            date = null,
-            report = null,
-            loading = false,
-            needsHandled = false
-        )
     }
 }

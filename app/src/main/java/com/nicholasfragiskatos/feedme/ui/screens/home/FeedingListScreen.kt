@@ -58,19 +58,6 @@ fun FeedingListScreen(
     val startActionSizePx = with(density) { defaultActionSize.toPx() }
     val animationState = remember { MutableTransitionState(true) }
 
-    if (daySummaryState.needsHandled && daySummaryState.report != null) {
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(
-                Intent.EXTRA_TEXT,
-                daySummaryState.report
-            )
-        }
-        val chooser = Intent.createChooser(intent, "Send Feeding via")
-        vm.clearReport()
-        context.startActivity(chooser)
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -117,7 +104,17 @@ fun FeedingListScreen(
                             ),
                             isLoading = daySummaryState.loading && daySummaryState.date == date
                         ) {
-                            vm.generateDaySummary(date, DateFormat.is24HourFormat(context), preferences.displayUnit)
+                            vm.generateDaySummary(date, DateFormat.is24HourFormat(context), preferences.displayUnit) {summary ->
+                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        summary
+                                    )
+                                }
+                                val chooser = Intent.createChooser(intent, "Send Feeding via")
+                                context.startActivity(chooser)
+                            }
                         }
                     }
 
