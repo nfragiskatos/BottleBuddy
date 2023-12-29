@@ -15,9 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,8 +23,6 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -44,11 +39,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nicholasfragiskatos.feedme.R
+import com.nicholasfragiskatos.feedme.ui.common.FeedingDatePickerDialog
 import com.nicholasfragiskatos.feedme.ui.common.FeedingTimePickerDialog
 import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
 import com.nicholasfragiskatos.feedme.utils.DateUtils
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditScreen(
     navController: NavController,
@@ -69,34 +64,12 @@ fun EditScreen(
     }
 
     var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState(date.time)
-
     var showTimePicker by remember { mutableStateOf(false) }
-    val timePickerState =
-        rememberTimePickerState(date.hours, date.minutes, DateFormat.is24HourFormat(context))
 
     if (showDatePicker) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val selectedDate =
-                            DateUtils.convertUtcToLocalDate(datePickerState.selectedDateMillis!!)
-                        vm.onEvent(AddEditFeedingEvent.ChangeDate(selectedDate))
-                        showDatePicker = false
-                    },
-                ) {
-                    Text(text = "OK")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text(text = "Cancel")
-                }
-            },
-        ) {
-            DatePicker(state = datePickerState)
+        FeedingDatePickerDialog(date = date, onDismiss = { showDatePicker = false }) {
+            vm.onEvent(AddEditFeedingEvent.ChangeDate(it))
+            showDatePicker = false
         }
     }
 
