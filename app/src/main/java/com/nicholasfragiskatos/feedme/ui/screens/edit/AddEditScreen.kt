@@ -10,14 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,7 +26,6 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -44,14 +40,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nicholasfragiskatos.feedme.R
+import com.nicholasfragiskatos.feedme.ui.common.FeedingTimePickerDialog
 import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
 import com.nicholasfragiskatos.feedme.utils.DateUtils
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,49 +101,12 @@ fun EditScreen(
     }
 
     if (showTimePicker) {
-        Dialog(onDismissRequest = { showTimePicker = false }) {
-            Card(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-
-                    ) {
-                    TimePicker(state = timePickerState)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        TextButton(
-                            onClick = { showTimePicker = false },
-                            modifier = Modifier.padding(8.dp),
-                        ) {
-                            Text("Dismiss")
-                        }
-                        TextButton(
-                            onClick = {
-                                val updatedDate = Date(date.time).apply {
-                                    hours = timePickerState.hour
-                                    minutes = timePickerState.minute
-                                }
-                                vm.onEvent(AddEditFeedingEvent.ChangeDate(updatedDate))
-                                showTimePicker = false
-                            },
-                            modifier = Modifier.padding(8.dp),
-                        ) {
-                            Text("Confirm")
-                        }
-                    }
-                }
-            }
+        FeedingTimePickerDialog(date = date, onDismiss = { showTimePicker = false }) {
+            vm.onEvent(AddEditFeedingEvent.ChangeDate(it))
+            showTimePicker = false
         }
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
