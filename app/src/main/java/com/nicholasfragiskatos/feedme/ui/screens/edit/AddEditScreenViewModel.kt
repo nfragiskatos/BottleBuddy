@@ -56,18 +56,26 @@ class AddEditScreenViewModel @Inject constructor(
     )
 
     init {
-        savedStateHandle.get<Long>("feedingId")?.let { feedingId ->
+        val feedingId = savedStateHandle.get<Long>("feedingId")
+        _currentFeedingId.value = feedingId ?: 0L
 
-            _currentFeedingId.value = feedingId
-            if (!isAdd) {
-                viewModelScope.launch(Dispatchers.IO) {
-                    repository.getFeedingById(feedingId)?.let { feeding ->
-                        _notes.value = feeding.notes
-                        _quantity.value = feeding.quantity.toString()
-                        _units.value = feeding.unit
-                        _currentFeedingId.value = feeding.id
-                        _date.value = feeding.date
-                    }
+        if (feedingId != null && !isAdd) {
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.getFeedingById(feedingId)?.let { feeding ->
+                    _notes.value = feeding.notes
+                    _quantity.value = feeding.quantity.toString()
+                    _units.value = feeding.unit
+                    _currentFeedingId.value = feeding.id
+                    _date.value = feeding.date
+                }
+            }
+        } else {
+            viewModelScope.launch {
+                preferenceManager.getData(
+                    PreferenceManager.PREFERRED_UNIT_KEY_DATA_STORE,
+                    UnitOfMeasurement.MILLILITER.name
+                ).collect {
+                    _units.value = UnitOfMeasurement.valueOf(it)
                 }
             }
         }
@@ -84,7 +92,8 @@ class AddEditScreenViewModel @Inject constructor(
             val quantityNumeric = quantity.value.toDouble()
 
             if (generateSummary) {
-                val alternateDisplayUnit = if (displayUnit == UnitOfMeasurement.MILLILITER) UnitOfMeasurement.OUNCE else UnitOfMeasurement.MILLILITER
+                val alternateDisplayUnit =
+                    if (displayUnit == UnitOfMeasurement.MILLILITER) UnitOfMeasurement.OUNCE else UnitOfMeasurement.MILLILITER
                 val feedingsForDay = repository.getFeedingsByDay(date.value)
                 val feedingsForDayTotal = feedingsForDay.sumOf {
                     UnitUtils.convertMeasurement(
@@ -100,18 +109,22 @@ class AddEditScreenViewModel @Inject constructor(
                 )
                 val dayTotalDisplay = UnitUtils.format(dayTotal, displayUnit)
 
-                val alternateDayTotal = UnitUtils.convertMeasurement(dayTotal, displayUnit, alternateDisplayUnit)
-                val alternateDayTotalDisplay = UnitUtils.format(alternateDayTotal, alternateDisplayUnit)
+                val alternateDayTotal =
+                    UnitUtils.convertMeasurement(dayTotal, displayUnit, alternateDisplayUnit)
+                val alternateDayTotalDisplay =
+                    UnitUtils.format(alternateDayTotal, alternateDisplayUnit)
 
-                val normalizedQuantity = UnitUtils.convertMeasurement(quantityNumeric, units.value, displayUnit)
+                val normalizedQuantity =
+                    UnitUtils.convertMeasurement(quantityNumeric, units.value, displayUnit)
                 val normalizedQuantityDisplay = UnitUtils.format(normalizedQuantity, displayUnit)
 
-                val sb = StringBuilder(DateUtils.getFormattedDateWithTime(date.value, is24HourFormat))
+                val sb =
+                    StringBuilder(DateUtils.getFormattedDateWithTime(date.value, is24HourFormat))
                 sb.append("\nThis Feeding: ${normalizedQuantityDisplay}${displayUnit.abbreviation}")
                 sb.append("\nDay Total: $dayTotalDisplay${displayUnit.abbreviation} ($alternateDayTotalDisplay${alternateDisplayUnit.abbreviation})")
 
                 if (notes.value.isNotBlank()) {
-                    sb.append("\n----\n$notes")
+                    sb.append("\n----\n${notes.value}")
                 }
 
                 summary = sb.toString()

@@ -2,6 +2,7 @@ package com.nicholasfragiskatos.feedme.ui.screens.edit
 
 import android.content.Intent
 import android.text.format.DateFormat
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,6 +57,8 @@ fun EditScreen(
     val preferences by vm.preferences.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var sendFeeding by remember { mutableStateOf(true) }
+
+    Log.d("MY_TAG", "composed!")
 
     val formattedDate by remember {
         derivedStateOf {
@@ -194,7 +197,7 @@ fun EditScreen(
                         is24HourFormat = DateFormat.is24HourFormat(context),
                         displayUnit = preferences.displayUnit
                     ) { summary ->
-                        if (summary != null) {
+                        if (summary != null && vm.isAdd) {
                             val intent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_TEXT, summary)
