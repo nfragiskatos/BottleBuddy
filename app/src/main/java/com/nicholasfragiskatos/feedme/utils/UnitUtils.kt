@@ -34,7 +34,7 @@ object UnitUtils {
     fun sanitizeDecimalInput(candidate: String, significantUnits: Int): String {
 
         if (candidate.matches("\\D".toRegex())) return ""
-        val trimmed = candidate.replaceFirst("^0+(?!$)".toRegex(), "")
+        val trimmed = candidate.replaceFirst("^0+(?!$)".toRegex(), "0")
 
         val sb = StringBuilder()
         var hasDecimal = false
