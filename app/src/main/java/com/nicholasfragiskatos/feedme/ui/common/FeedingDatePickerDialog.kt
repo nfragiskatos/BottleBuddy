@@ -26,6 +26,11 @@ fun FeedingDatePickerDialog(
                 onClick = {
                     val selectedDate =
                         DateUtils.convertUtcToLocalDate(datePickerState.selectedDateMillis!!)
+                            .apply {
+                                hours = date.hours
+                                minutes = date.minutes
+                                seconds = date.seconds
+                            }
                     onConfirm(selectedDate)
                 },
             ) {
