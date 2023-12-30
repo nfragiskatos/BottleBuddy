@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -40,7 +41,7 @@ class FeedingListScreenViewModel @Inject constructor(
                 toLocalDate.atStartOfDay()
             }
             UiState(groupBy, false)
-        }.stateIn(
+        }.flowOn(Dispatchers.IO).stateIn(
             scope = viewModelScope,
             initialValue = UiState(emptyMap(), true),
             started = SharingStarted.WhileSubscribed(5000)
@@ -65,9 +66,10 @@ class FeedingListScreenViewModel @Inject constructor(
     val graphPoints: StateFlow<List<Point>> =
         feedingsForToday.combine(preferences) { feedings, prefs ->
             createPoints(feedings, prefs.displayUnit)
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MutableList(1440) {
-            Point(it.toFloat(), 0.0f)
-        })
+        }.flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MutableList(1440) {
+                Point(it.toFloat(), 0.0f)
+            })
 
     private val _daySummaryState: MutableStateFlow<DaySummaryState> =
         MutableStateFlow(DaySummaryState())
