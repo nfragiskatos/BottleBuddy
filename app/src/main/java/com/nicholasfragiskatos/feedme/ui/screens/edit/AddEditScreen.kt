@@ -86,7 +86,7 @@ fun EditScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
     ) {
         Column(
             modifier = Modifier
@@ -128,8 +128,10 @@ fun EditScreen(
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = quantity,
-                onValueChange = {
-                    vm.onEvent(AddEditFeedingEvent.ChangeQuantity(it))
+                onValueChange = remember(vm) {
+                    {
+                        vm.onEvent(AddEditFeedingEvent.ChangeQuantity(it))
+                    }
                 },
                 label = { Text(text = "Volume") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -138,16 +140,21 @@ fun EditScreen(
 
             UnitSelector(
                 modifier = Modifier.fillMaxWidth(),
-                selectedUnit = units
-            ) { unit ->
-                vm.onEvent(AddEditFeedingEvent.ChangeUnits(unit))
-            }
+                selectedUnit = units,
+                onSelect = remember(vm) {
+                    { unit ->
+                        vm.onEvent(AddEditFeedingEvent.ChangeUnits(unit))
+                    }
+                },
+            )
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = notes,
-                onValueChange = {
-                    vm.onEvent(AddEditFeedingEvent.ChangeNote(it))
+                onValueChange = remember(vm) {
+                    {
+                        vm.onEvent(AddEditFeedingEvent.ChangeNote(it))
+                    }
                 },
                 label = { Text(text = "Notes") },
             )
@@ -158,58 +165,62 @@ fun EditScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
 
-                    ) {
+                ) {
                     Column(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.SpaceBetween,
-                        horizontalAlignment = Alignment.Start
+                        horizontalAlignment = Alignment.Start,
                     ) {
                         Text(
                             text = "Send Feeding",
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
                         )
                         Text(
                             text = "When saving, you can choose to send this to someone in your contacts.",
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
 
-                    Switch(checked = sendFeeding, onCheckedChange = { sendFeeding = it },
+                    Switch(
+                        checked = sendFeeding,
+                        onCheckedChange = { sendFeeding = it },
                         thumbContent = if (sendFeeding) {
                             {
                                 Icon(
                                     imageVector = Icons.Filled.Check,
                                     contentDescription = "Send Feeding Checkbox",
-                                    modifier = Modifier.size(SwitchDefaults.IconSize)
+                                    modifier = Modifier.size(SwitchDefaults.IconSize),
                                 )
                             }
                         } else {
                             null
-                        }
+                        },
                     )
                 }
             }
 
             Button(
-                onClick = {
-                    vm.saveFeeding(
-                        generateSummary = sendFeeding,
-                        is24HourFormat = DateFormat.is24HourFormat(context),
-                        displayUnit = preferences.displayUnit
-                    ) { summary ->
-                        if (summary != null && vm.isAdd) {
-                            val intent = Intent(Intent.ACTION_SEND).apply {
-                                type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, summary)
+                onClick = remember(vm) {
+                    {
+                        vm.saveFeeding(
+                            generateSummary = sendFeeding,
+                            is24HourFormat = DateFormat.is24HourFormat(context),
+                            displayUnit = preferences.displayUnit,
+                        ) { summary ->
+                            if (summary != null && vm.isAdd) {
+                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, summary)
+                                }
+                                val chooser = Intent.createChooser(intent, "Send Feeding via")
+                                context.startActivity(chooser)
                             }
-                            val chooser = Intent.createChooser(intent, "Send Feeding via")
-                            context.startActivity(chooser)
+                            navController.navigateUp()
                         }
-                        navController.navigateUp()
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = quantity.isNotBlank()
+                enabled = quantity.isNotBlank(),
             ) {
                 val label = if (vm.isAdd) "Add" else "Save"
                 Text(text = label)
@@ -221,9 +232,11 @@ fun EditScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.End),
-                onClick = {
-                    vm.deleteFeeding {
-                        navController.navigateUp()
+                onClick = remember(vm) {
+                    {
+                        vm.deleteFeeding {
+                            navController.navigateUp()
+                        }
                     }
                 },
             ) {
