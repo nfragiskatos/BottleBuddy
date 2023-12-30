@@ -25,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +41,7 @@ import com.nicholasfragiskatos.feedme.ui.screens.home.draggable.FeedingDragAncho
 import com.nicholasfragiskatos.feedme.ui.screens.home.graph.CumulativeGoalGraph
 import com.nicholasfragiskatos.feedme.ui.screens.home.listcontent.FeedingItem
 import com.nicholasfragiskatos.feedme.ui.screens.home.listcontent.Header
+import com.nicholasfragiskatos.feedme.utils.TransitionStateSaver
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -56,18 +58,22 @@ fun FeedingListScreen(
     val density = LocalDensity.current
     val defaultActionSize = 80.dp
     val startActionSizePx = with(density) { defaultActionSize.toPx() }
-    val animationState = remember { MutableTransitionState(true) }
+    val animationState = rememberSaveable(saver = TransitionStateSaver) {
+        MutableTransitionState(true)
+    }
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize(),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            TextButton(onClick = { animationState.targetState = !animationState.targetState }) {
+            TextButton(
+                onClick = { animationState.targetState = !animationState.targetState },
+            ) {
                 Text(text = "${if (animationState.currentState) "Hide" else "Show"} Today's Progress")
             }
         }
@@ -84,7 +90,7 @@ fun FeedingListScreen(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                state = rememberLazyListState()
+                state = rememberLazyListState(),
             ) {
                 groupState.data.forEach { (date, feedings) ->
 
@@ -92,22 +98,31 @@ fun FeedingListScreen(
                         UnitUtils.convertMeasurement(
                             feeding.quantity,
                             feeding.unit,
-                            preferences.displayUnit
+                            preferences.displayUnit,
                         )
                     }
 
                     stickyHeader {
                         Header(
                             date = date,
-                            dayTotal = "${UnitUtils.format(dayTotal, preferences.displayUnit)}${preferences.displayUnit.abbreviation}",
-                            isLoading = daySummaryState.loading && daySummaryState.date == date
+                            dayTotal = "${
+                                UnitUtils.format(
+                                    dayTotal,
+                                    preferences.displayUnit,
+                                )
+                            }${preferences.displayUnit.abbreviation}",
+                            isLoading = daySummaryState.loading && daySummaryState.date == date,
                         ) {
-                            vm.generateDaySummary(date, DateFormat.is24HourFormat(context), preferences.displayUnit) {summary ->
+                            vm.generateDaySummary(
+                                date,
+                                DateFormat.is24HourFormat(context),
+                                preferences.displayUnit,
+                            ) { summary ->
                                 val intent = Intent(Intent.ACTION_SEND).apply {
                                     type = "text/plain"
                                     putExtra(
                                         Intent.EXTRA_TEXT,
-                                        summary
+                                        summary,
                                     )
                                 }
                                 val chooser = Intent.createChooser(intent, "Send Feeding via")
@@ -118,7 +133,7 @@ fun FeedingListScreen(
 
                     itemsIndexed(
                         items = feedings,
-                        key = { _, feeding -> feeding.id }
+                        key = { _, feeding -> feeding.id },
                     ) { index, feeding ->
 
                         val anchorState = remember {
@@ -130,7 +145,7 @@ fun FeedingListScreen(
                                 },
                                 positionalThreshold = { distance: Float -> distance * 0.5f },
                                 velocityThreshold = { with(density) { 100.dp.toPx() } },
-                                animationSpec = tween()
+                                animationSpec = tween(),
 
                             )
                         }
@@ -146,17 +161,17 @@ fun FeedingListScreen(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxHeight()
-                                        .align(Alignment.CenterStart)
+                                        .align(Alignment.CenterStart),
                                 ) {
                                     FeedingDeleteAction(
                                         modifier = Modifier
                                             .width(defaultActionSize)
-                                            .fillMaxHeight()
+                                            .fillMaxHeight(),
                                     ) {
                                         vm.deleteFeeding(feeding)
                                     }
                                 }
-                            }
+                            },
                         )
 
                         if (index < feedings.lastIndex) {
