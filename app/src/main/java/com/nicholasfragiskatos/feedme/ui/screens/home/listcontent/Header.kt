@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
@@ -24,17 +26,19 @@ import java.time.LocalDateTime
 fun Header(date: LocalDateTime, dayTotal: String, isLoading: Boolean = false, onShare: () -> Unit) {
     val formattedDate = DateUtils.getFormattedDate(date)
 
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = MaterialTheme.colorScheme.surface)
-            .padding(8.dp)
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxHeight(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
                 text = formattedDate,
@@ -45,21 +49,19 @@ fun Header(date: LocalDateTime, dayTotal: String, isLoading: Boolean = false, on
             Text(
                 text = "Total: $dayTotal",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.secondary
+                color = MaterialTheme.colorScheme.secondary,
             )
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            IconButton(onClick = onShare, enabled = !isLoading) {
-                Icon(
-                    imageVector = Icons.Filled.Share,
-                    contentDescription = "Share Day Summary"
-                )
-            }
+        IconButton(onClick = onShare, enabled = !isLoading) {
+            Icon(
+                modifier = Modifier.size(32.dp),
+                imageVector = Icons.Filled.Share,
+                contentDescription = "Share Day Summary",
+
+            )
         }
+
         if (isLoading) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }

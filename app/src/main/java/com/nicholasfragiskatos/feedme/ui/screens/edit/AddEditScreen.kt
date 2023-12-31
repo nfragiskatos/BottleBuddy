@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -172,22 +172,23 @@ fun EditScreen(
                         horizontalAlignment = Alignment.Start,
                     ) {
                         Text(
-                            text = "Send Feeding",
+                            text = "Share Feeding",
                             style = MaterialTheme.typography.titleMedium,
                         )
                         Text(
-                            text = "When saving, you can choose to send this to someone in your contacts.",
+                            text = "Share this feeding with your contacts after saving.",
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     }
 
                     Switch(
+                        modifier = Modifier.padding(start = 8.dp),
                         checked = sendFeeding,
                         onCheckedChange = { sendFeeding = it },
                         thumbContent = if (sendFeeding) {
                             {
                                 Icon(
-                                    imageVector = Icons.Filled.Check,
+                                    imageVector = Icons.Filled.Share,
                                     contentDescription = "Send Feeding Checkbox",
                                     modifier = Modifier.size(SwitchDefaults.IconSize),
                                 )
