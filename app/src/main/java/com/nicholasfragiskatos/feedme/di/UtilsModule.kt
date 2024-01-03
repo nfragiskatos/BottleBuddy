@@ -4,6 +4,8 @@ import com.nicholasfragiskatos.feedme.utils.DefaultDispatcherProvider
 import com.nicholasfragiskatos.feedme.utils.DispatcherProvider
 import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import com.nicholasfragiskatos.feedme.utils.PreferenceManagerImpl
+import com.nicholasfragiskatos.feedme.utils.ReportGenerator
+import com.nicholasfragiskatos.feedme.utils.ReportGeneratorImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,5 +19,8 @@ abstract class UtilsModule {
     abstract fun bindDispatcherProvider(defaultDispatcherProvider: DefaultDispatcherProvider): DispatcherProvider
 
     @Binds
-    abstract fun bindPreferenceManager(preferenceManagerImpl: PreferenceManagerImpl) : PreferenceManager
+    abstract fun bindPreferenceManager(preferenceManagerImpl: PreferenceManagerImpl): PreferenceManager
+
+    @Binds
+    abstract fun bindReportGenerator(reportGeneratorImpl: ReportGeneratorImpl): ReportGenerator
 }
