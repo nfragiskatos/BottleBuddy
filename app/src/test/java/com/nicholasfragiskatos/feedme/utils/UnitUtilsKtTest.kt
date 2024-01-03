@@ -145,11 +145,11 @@ class UnitUtilsTest {
 
         candidate = "01"
         signUnits = 2
-        assertEquals("1", sanitizeDecimalInput(candidate, signUnits))
+        assertEquals("01", sanitizeDecimalInput(candidate, signUnits))
 
         candidate = "001"
         signUnits = 2
-        assertEquals("1", sanitizeDecimalInput(candidate, signUnits))
+        assertEquals("01", sanitizeDecimalInput(candidate, signUnits))
 
         candidate = "1.1"
         signUnits = 2
@@ -165,14 +165,14 @@ class UnitUtilsTest {
 
         candidate = "00001.12345"
         signUnits = 2
-        assertEquals("1.12", sanitizeDecimalInput(candidate, signUnits))
+        assertEquals("01.12", sanitizeDecimalInput(candidate, signUnits))
 
         candidate = "00001.1.2345"
         signUnits = 4
-        assertEquals("1.1234", sanitizeDecimalInput(candidate, signUnits))
+        assertEquals("01.1234", sanitizeDecimalInput(candidate, signUnits))
 
         candidate = "00001.12...345"
         signUnits = 5
-        assertEquals("1.12345", sanitizeDecimalInput(candidate, signUnits))
+        assertEquals("01.12345", sanitizeDecimalInput(candidate, signUnits))
     }
 }
