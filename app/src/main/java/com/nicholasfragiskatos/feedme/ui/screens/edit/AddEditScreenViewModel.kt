@@ -51,9 +51,9 @@ class AddEditScreenViewModel @Inject constructor(
         initialValue = FeedMePreferences(
             50f,
             UnitOfMeasurement.MILLILITER,
-            UnitOfMeasurement.MILLILITER
+            UnitOfMeasurement.MILLILITER,
         ),
-        started = SharingStarted.WhileSubscribed(5000)
+        started = SharingStarted.WhileSubscribed(5000),
     )
 
     init {
@@ -74,7 +74,7 @@ class AddEditScreenViewModel @Inject constructor(
             viewModelScope.launch {
                 preferenceManager.getData(
                     PreferenceManager.PREFERRED_UNIT_KEY_DATA_STORE,
-                    UnitOfMeasurement.MILLILITER.name
+                    UnitOfMeasurement.MILLILITER.name,
                 ).collect {
                     _units.value = UnitOfMeasurement.valueOf(it)
                 }
@@ -86,7 +86,7 @@ class AddEditScreenViewModel @Inject constructor(
         generateSummary: Boolean = false,
         is24HourFormat: Boolean = false,
         displayUnit: UnitOfMeasurement = UnitOfMeasurement.MILLILITER,
-        onSuccess: (String?) -> Unit = {}
+        onSuccess: (String?) -> Unit = {},
     ) {
         viewModelScope.launch(dispatcherProvider.io) {
             var summary: String? = null
@@ -100,13 +100,13 @@ class AddEditScreenViewModel @Inject constructor(
                     UnitUtils.convertMeasurement(
                         it.quantity,
                         it.unit,
-                        displayUnit
+                        displayUnit,
                     )
                 }
                 val dayTotal = feedingsForDayTotal + UnitUtils.convertMeasurement(
                     quantityNumeric,
                     units.value,
-                    displayUnit
+                    displayUnit,
                 )
                 val dayTotalDisplay = UnitUtils.format(dayTotal, displayUnit)
 

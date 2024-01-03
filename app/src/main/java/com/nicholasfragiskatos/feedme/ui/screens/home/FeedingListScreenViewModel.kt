@@ -30,7 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FeedingListScreenViewModel @Inject constructor(
     private val repository: FeedingRepository,
-    preferenceManager: PreferenceManager
+    preferenceManager: PreferenceManager,
 ) : ViewModel() {
 
     val groupState: StateFlow<UiState<Map<LocalDateTime, List<Feeding>>>> =
@@ -44,13 +44,13 @@ class FeedingListScreenViewModel @Inject constructor(
         }.flowOn(Dispatchers.IO).stateIn(
             scope = viewModelScope,
             initialValue = UiState(emptyMap(), true),
-            started = SharingStarted.WhileSubscribed(5000)
+            started = SharingStarted.WhileSubscribed(5000),
         )
 
     private val feedingsForToday = repository.getFeedingsForToday().stateIn(
         scope = viewModelScope,
         initialValue = emptyList(),
-        started = SharingStarted.WhileSubscribed(5000)
+        started = SharingStarted.WhileSubscribed(5000),
     )
 
     val preferences = preferenceManager.getPreferences().stateIn(
@@ -58,18 +58,22 @@ class FeedingListScreenViewModel @Inject constructor(
         initialValue = FeedMePreferences(
             50f,
             UnitOfMeasurement.MILLILITER,
-            UnitOfMeasurement.MILLILITER
+            UnitOfMeasurement.MILLILITER,
         ),
-        started = SharingStarted.WhileSubscribed(5000)
+        started = SharingStarted.WhileSubscribed(5000),
     )
 
     val graphPoints: StateFlow<List<Point>> =
         feedingsForToday.combine(preferences) { feedings, prefs ->
             createPoints(feedings, prefs.displayUnit)
         }.flowOn(Dispatchers.Default)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MutableList(1440) {
-                Point(it.toFloat(), 0.0f)
-            })
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                MutableList(1440) {
+                    Point(it.toFloat(), 0.0f)
+                },
+            )
 
     private val _daySummaryState: MutableStateFlow<DaySummaryState> =
         MutableStateFlow(DaySummaryState())
@@ -107,7 +111,7 @@ class FeedingListScreenViewModel @Inject constructor(
         date: LocalDateTime,
         is24HourFormat: Boolean,
         displayUnit: UnitOfMeasurement,
-        onSuccess: (String) -> Unit = {}
+        onSuccess: (String) -> Unit = {},
     ) {
         viewModelScope.launch(Dispatchers.Default) {
             _daySummaryState.value = _daySummaryState.value.copy(date = date, loading = true)
@@ -123,7 +127,7 @@ class FeedingListScreenViewModel @Inject constructor(
                     val quantity = UnitUtils.convertMeasurement(
                         feeding.quantity,
                         feeding.unit,
-                        displayUnit
+                        displayUnit,
                     )
                     val quantityDisplay = UnitUtils.format(quantity, displayUnit)
 
