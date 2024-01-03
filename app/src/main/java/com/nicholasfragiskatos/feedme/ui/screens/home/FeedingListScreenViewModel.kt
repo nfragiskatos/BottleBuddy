@@ -14,7 +14,6 @@ import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import com.nicholasfragiskatos.feedme.utils.ReportGenerator
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -121,7 +120,6 @@ class FeedingListScreenViewModel @Inject constructor(
                 displayUnit,
                 is24HourFormat,
             )
-            delay(2000)
             _daySummaryState.value =
                 _daySummaryState.value.copy(loading = false, date = null)
 
