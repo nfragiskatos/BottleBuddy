@@ -26,42 +26,45 @@ import java.time.LocalDateTime
 fun Header(date: LocalDateTime, dayTotal: String, isLoading: Boolean = false, onShare: () -> Unit) {
     val formattedDate = DateUtils.getFormattedDate(date)
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = MaterialTheme.colorScheme.surface)
             .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.SpaceBetween,
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = formattedDate,
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.secondary,
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight(),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = formattedDate,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
 
-            Text(
-                text = "Total: $dayTotal",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.secondary,
-            )
+                Text(
+                    text = "Total: $dayTotal",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+            }
+
+            IconButton(onClick = onShare, enabled = !isLoading) {
+                Icon(
+                    modifier = Modifier.size(32.dp),
+                    imageVector = Icons.Filled.Share,
+                    contentDescription = "Share Day Summary",
+
+                )
+            }
         }
-
-        IconButton(onClick = onShare, enabled = !isLoading) {
-            Icon(
-                modifier = Modifier.size(32.dp),
-                imageVector = Icons.Filled.Share,
-                contentDescription = "Share Day Summary",
-
-            )
-        }
-
         if (isLoading) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }

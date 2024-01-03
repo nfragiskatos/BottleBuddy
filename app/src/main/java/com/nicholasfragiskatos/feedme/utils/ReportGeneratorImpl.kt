@@ -3,6 +3,7 @@ package com.nicholasfragiskatos.feedme.utils
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
+import java.util.Date
 import javax.inject.Inject
 
 class ReportGeneratorImpl @Inject constructor(
@@ -51,5 +52,48 @@ class ReportGeneratorImpl @Inject constructor(
         }
 
         return sb.toString()
+    }
+
+    override suspend fun generateDaySummary(
+        date: Date,
+        displayUnit: UnitOfMeasurement,
+        is24HourFormat: Boolean,
+    ): String {
+        val alternateDisplayUnit =
+            if (displayUnit == UnitOfMeasurement.MILLILITER) UnitOfMeasurement.OUNCE else UnitOfMeasurement.MILLILITER
+        val feedings = repository.getFeedingsByDay(date)
+
+        return if (feedings.isNotEmpty()) {
+            var dayTotal = 0.0
+            val sb = StringBuilder("Summary for ${DateUtils.getFormattedDate(date)}\n")
+            for (index in feedings.indices.reversed()) {
+                val feeding = feedings[index]
+                val quantity = UnitUtils.convertMeasurement(
+                    feeding.quantity,
+                    feeding.unit,
+                    displayUnit,
+                )
+                val quantityDisplay = UnitUtils.format(quantity, displayUnit)
+
+                dayTotal += quantity
+
+                val formattedDate = DateUtils.getFormattedTime(feeding.date, is24HourFormat)
+                sb.append("\n$formattedDate - $quantityDisplay${displayUnit.abbreviation}")
+            }
+            sb.append("\n------------")
+
+            val dayTotalDisplay = UnitUtils.format(dayTotal, displayUnit)
+
+            val alternateDayTotal =
+                UnitUtils.convertMeasurement(dayTotal, displayUnit, alternateDisplayUnit)
+            val alternateDayTotalDisplay =
+                UnitUtils.format(alternateDayTotal, alternateDisplayUnit)
+
+            sb.append("\nTotal: $dayTotalDisplay${displayUnit.abbreviation} ($alternateDayTotalDisplay${alternateDisplayUnit.abbreviation})")
+
+            sb.toString()
+        } else {
+            "No feedings logged for this day."
+        }
     }
 }

@@ -3,10 +3,10 @@ package com.nicholasfragiskatos.feedme.utils
 import android.icu.text.DateFormat
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.Date
-
 
 object DateUtils {
 
@@ -30,6 +30,14 @@ object DateUtils {
             selectedUtc.get(Calendar.DATE),
         )
         return selectedLocal.time
+    }
+
+    fun convertToDate(ldt: LocalDateTime): Date {
+        return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant())
+    }
+
+    fun convertToLocalDate(date: Date): LocalDate {
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
     }
 
     fun getFormattedDate(date: Date): String = dateFormatDate.format(date)

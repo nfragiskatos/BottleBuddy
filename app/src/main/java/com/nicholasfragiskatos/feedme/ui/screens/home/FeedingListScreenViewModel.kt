@@ -10,9 +10,11 @@ import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
 import com.nicholasfragiskatos.feedme.ui.screens.UiState
 import com.nicholasfragiskatos.feedme.utils.DateUtils
 import com.nicholasfragiskatos.feedme.utils.PreferenceManager
+import com.nicholasfragiskatos.feedme.utils.ReportGenerator
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,21 +26,19 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
-import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
 class FeedingListScreenViewModel @Inject constructor(
     private val repository: FeedingRepository,
+    private val reportGenerator: ReportGenerator,
     preferenceManager: PreferenceManager,
 ) : ViewModel() {
 
     val groupState: StateFlow<UiState<Map<LocalDateTime, List<Feeding>>>> =
         repository.getFeedings().map {
             val groupBy = it.groupBy { feeding ->
-                val toLocalDate =
-                    feeding.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                toLocalDate.atStartOfDay()
+                DateUtils.convertToLocalDate(feeding.date).atStartOfDay()
             }
             UiState(groupBy, false)
         }.flowOn(Dispatchers.IO).stateIn(
@@ -115,44 +115,17 @@ class FeedingListScreenViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.Default) {
             _daySummaryState.value = _daySummaryState.value.copy(date = date, loading = true)
-            val feedings = groupState.value.data[date]
-            var dayTotal = 0.0
-            val alternateDisplayUnit =
-                if (displayUnit == UnitOfMeasurement.MILLILITER) UnitOfMeasurement.OUNCE else UnitOfMeasurement.MILLILITER
+            val summary = reportGenerator.generateDaySummary(
+                DateUtils.convertToDate(date),
+                displayUnit,
+                is24HourFormat,
+            )
+            delay(2000)
+            _daySummaryState.value =
+                _daySummaryState.value.copy(loading = false, date = null)
 
-            feedings?.let {
-                val sb = StringBuilder("Summary for ${DateUtils.getFormattedDate(date)}\n")
-                for (index in it.indices.reversed()) {
-                    val feeding = it[index]
-                    val quantity = UnitUtils.convertMeasurement(
-                        feeding.quantity,
-                        feeding.unit,
-                        displayUnit,
-                    )
-                    val quantityDisplay = UnitUtils.format(quantity, displayUnit)
-
-                    dayTotal += quantity
-
-                    val formattedDate = DateUtils.getFormattedTime(feeding.date, is24HourFormat)
-                    sb.append("\n$formattedDate - $quantityDisplay${displayUnit.abbreviation}")
-                }
-                sb.append("\n------------")
-
-                val dayTotalDisplay = UnitUtils.format(dayTotal, displayUnit)
-
-                val alternateDayTotal =
-                    UnitUtils.convertMeasurement(dayTotal, displayUnit, alternateDisplayUnit)
-                val alternateDayTotalDisplay =
-                    UnitUtils.format(alternateDayTotal, alternateDisplayUnit)
-
-                sb.append("\nTotal: $dayTotalDisplay${displayUnit.abbreviation} ($alternateDayTotalDisplay${alternateDisplayUnit.abbreviation})")
-
-                _daySummaryState.value =
-                    _daySummaryState.value.copy(loading = false, date = null)
-
-                withContext(Dispatchers.Main) {
-                    onSuccess(sb.toString())
-                }
+            withContext(Dispatchers.Main) {
+                onSuccess(summary)
             }
         }
     }
