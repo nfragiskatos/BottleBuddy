@@ -7,9 +7,9 @@ import com.nicholasfragiskatos.feedme.domain.model.FeedMePreferences
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
-import com.nicholasfragiskatos.feedme.utils.DateUtils
 import com.nicholasfragiskatos.feedme.utils.DispatcherProvider
 import com.nicholasfragiskatos.feedme.utils.PreferenceManager
+import com.nicholasfragiskatos.feedme.utils.ReportGenerator
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +25,7 @@ import javax.inject.Inject
 class AddEditScreenViewModel @Inject constructor(
     private val repository: FeedingRepository,
     private val dispatcherProvider: DispatcherProvider,
+    private val reportGenerator: ReportGenerator,
     preferenceManager: PreferenceManager,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -92,45 +93,6 @@ class AddEditScreenViewModel @Inject constructor(
             var summary: String? = null
             val quantityNumeric = quantity.value.toDouble()
 
-            if (generateSummary) {
-                val alternateDisplayUnit =
-                    if (displayUnit == UnitOfMeasurement.MILLILITER) UnitOfMeasurement.OUNCE else UnitOfMeasurement.MILLILITER
-                val feedingsForDay = repository.getFeedingsByDay(date.value)
-                val feedingsForDayTotal = feedingsForDay.sumOf {
-                    UnitUtils.convertMeasurement(
-                        it.quantity,
-                        it.unit,
-                        displayUnit,
-                    )
-                }
-                val dayTotal = feedingsForDayTotal + UnitUtils.convertMeasurement(
-                    quantityNumeric,
-                    units.value,
-                    displayUnit,
-                )
-                val dayTotalDisplay = UnitUtils.format(dayTotal, displayUnit)
-
-                val alternateDayTotal =
-                    UnitUtils.convertMeasurement(dayTotal, displayUnit, alternateDisplayUnit)
-                val alternateDayTotalDisplay =
-                    UnitUtils.format(alternateDayTotal, alternateDisplayUnit)
-
-                val normalizedQuantity =
-                    UnitUtils.convertMeasurement(quantityNumeric, units.value, displayUnit)
-                val normalizedQuantityDisplay = UnitUtils.format(normalizedQuantity, displayUnit)
-
-                val sb =
-                    StringBuilder(DateUtils.getFormattedDateWithTime(date.value, is24HourFormat))
-                sb.append("\nThis Feeding: ${normalizedQuantityDisplay}${displayUnit.abbreviation}")
-                sb.append("\nDay Total: $dayTotalDisplay${displayUnit.abbreviation} ($alternateDayTotalDisplay${alternateDisplayUnit.abbreviation})")
-
-                if (notes.value.isNotBlank()) {
-                    sb.append("\n----\n${notes.value}")
-                }
-
-                summary = sb.toString()
-            }
-
             val toSave = Feeding(
                 id = _currentFeedingId.value,
                 date = date.value,
@@ -138,6 +100,12 @@ class AddEditScreenViewModel @Inject constructor(
                 unit = units.value,
                 notes = notes.value,
             )
+
+            if (generateSummary) {
+                summary =
+                    reportGenerator.generateFeedingSummary(toSave, displayUnit, is24HourFormat)
+            }
+
             repository.saveFeeding(toSave)
             withContext(dispatcherProvider.main) {
                 onSuccess(summary)

@@ -6,6 +6,7 @@ import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FakeFeedingRepository
 import com.nicholasfragiskatos.feedme.utils.FakePreferenceManager
+import com.nicholasfragiskatos.feedme.utils.FakeReportGenerator
 import com.nicholasfragiskatos.feedme.utils.TestDispatcherProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,6 +24,7 @@ class AddEditScreenViewModelTest {
     private var repo = FakeFeedingRepository()
     private var preferenceManager = FakePreferenceManager()
     private var savedStateHandle = SavedStateHandle(mapOf())
+    private var reportGenerator = FakeReportGenerator()
 
     @Before
     fun setUp() {
@@ -35,6 +37,7 @@ class AddEditScreenViewModelTest {
         repo = FakeFeedingRepository()
         preferenceManager = FakePreferenceManager()
         savedStateHandle = SavedStateHandle(mapOf())
+        reportGenerator = FakeReportGenerator()
     }
 
     @Test
@@ -42,6 +45,7 @@ class AddEditScreenViewModelTest {
         val vm = AddEditScreenViewModel(
             repository = repo,
             dispatcherProvider = dispatcherProvider,
+            reportGenerator = reportGenerator,
             preferenceManager = preferenceManager,
             savedStateHandle = savedStateHandle,
         )
@@ -73,10 +77,12 @@ class AddEditScreenViewModelTest {
         val vm = AddEditScreenViewModel(
             repository = repo,
             dispatcherProvider = dispatcherProvider,
+            reportGenerator = reportGenerator,
             preferenceManager = preferenceManager,
             savedStateHandle = savedStateHandle,
         )
 
+        assertThat(vm.isAdd).isFalse()
         assertThat(vm.date.value).isEqualTo(date)
         assertThat(vm.quantity.value).isEqualTo(quantity.toString())
         assertThat(vm.units.value).isEqualTo(unit)
@@ -90,6 +96,7 @@ class AddEditScreenViewModelTest {
         val vm = AddEditScreenViewModel(
             repository = repo,
             dispatcherProvider = dispatcherProvider,
+            reportGenerator = reportGenerator,
             preferenceManager = preferenceManager,
             savedStateHandle = savedStateHandle,
         )
@@ -106,6 +113,7 @@ class AddEditScreenViewModelTest {
         val vm = AddEditScreenViewModel(
             repository = repo,
             dispatcherProvider = dispatcherProvider,
+            reportGenerator = reportGenerator,
             preferenceManager = preferenceManager,
             savedStateHandle = savedStateHandle,
         )
@@ -122,6 +130,7 @@ class AddEditScreenViewModelTest {
         val vm = AddEditScreenViewModel(
             repository = repo,
             dispatcherProvider = dispatcherProvider,
+            reportGenerator = reportGenerator,
             preferenceManager = preferenceManager,
             savedStateHandle = savedStateHandle,
         )
@@ -138,6 +147,7 @@ class AddEditScreenViewModelTest {
         val vm = AddEditScreenViewModel(
             repository = repo,
             dispatcherProvider = dispatcherProvider,
+            reportGenerator = reportGenerator,
             preferenceManager = preferenceManager,
             savedStateHandle = savedStateHandle,
         )
@@ -162,6 +172,7 @@ class AddEditScreenViewModelTest {
         val vm = AddEditScreenViewModel(
             repository = repo,
             dispatcherProvider = dispatcherProvider,
+            reportGenerator = reportGenerator,
             preferenceManager = preferenceManager,
             savedStateHandle = savedStateHandle,
         )
@@ -179,5 +190,31 @@ class AddEditScreenViewModelTest {
         assertThat(savedFeeding?.quantity).isEqualTo(quantity.toDouble())
         assertThat(savedFeeding?.unit).isEqualTo(units)
         assertThat(savedFeeding?.notes).isEqualTo(notes)
+    }
+
+    @Test
+    fun `test feeding summary was generated`() = runTest {
+        val quantity = "35.4"
+        val date = Date(123, 7, 20)
+        val units = UnitOfMeasurement.MILLILITER
+        val notes = "My Test Notes"
+
+        val vm = AddEditScreenViewModel(
+            repository = repo,
+            dispatcherProvider = dispatcherProvider,
+            reportGenerator = reportGenerator,
+            preferenceManager = preferenceManager,
+            savedStateHandle = savedStateHandle,
+        )
+
+        vm.onEvent(AddEditFeedingEvent.ChangeDate(date))
+        vm.onEvent(AddEditFeedingEvent.ChangeUnits(units))
+        vm.onEvent(AddEditFeedingEvent.ChangeQuantity(quantity))
+        vm.onEvent(AddEditFeedingEvent.ChangeNote(notes))
+
+        vm.saveFeeding(generateSummary = true) {
+            assertThat(it).isNotNull()
+            assertThat(it!!.isNotBlank()).isTrue()
+        }
     }
 }
