@@ -9,11 +9,11 @@ import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
 import com.nicholasfragiskatos.feedme.ui.screens.UiState
 import com.nicholasfragiskatos.feedme.utils.DateUtils
+import com.nicholasfragiskatos.feedme.utils.DispatcherProvider
 import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import com.nicholasfragiskatos.feedme.utils.ReportGenerator
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,6 +31,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FeedingListScreenViewModel @Inject constructor(
     private val repository: FeedingRepository,
+    private val dispatcherProvider: DispatcherProvider,
     private val reportGenerator: ReportGenerator,
     preferenceManager: PreferenceManager,
 ) : ViewModel() {
@@ -41,7 +42,7 @@ class FeedingListScreenViewModel @Inject constructor(
                 DateUtils.convertToLocalDate(feeding.date).atStartOfDay()
             }
             UiState(groupBy, false)
-        }.flowOn(Dispatchers.IO).stateIn(
+        }.flowOn(dispatcherProvider.io).stateIn(
             scope = viewModelScope,
             initialValue = UiState(emptyMap(), true),
             started = SharingStarted.WhileSubscribed(5000),
@@ -66,7 +67,7 @@ class FeedingListScreenViewModel @Inject constructor(
     val graphPoints: StateFlow<List<Point>> =
         feedingsForToday.combine(preferences) { feedings, prefs ->
             createPoints(feedings, prefs.displayUnit)
-        }.flowOn(Dispatchers.Default)
+        }.flowOn(dispatcherProvider.default)
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
@@ -113,7 +114,7 @@ class FeedingListScreenViewModel @Inject constructor(
         displayUnit: UnitOfMeasurement,
         onSuccess: (String) -> Unit = {},
     ) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatcherProvider.default) {
             _daySummaryState.value = _daySummaryState.value.copy(date = date, loading = true)
             val summary = reportGenerator.generateDaySummary(
                 DateUtils.convertToDate(date),
@@ -124,7 +125,7 @@ class FeedingListScreenViewModel @Inject constructor(
             _daySummaryState.value =
                 _daySummaryState.value.copy(loading = false, date = null)
 
-            withContext(Dispatchers.Main) {
+            withContext(dispatcherProvider.main) {
                 onSuccess(summary)
             }
         }
