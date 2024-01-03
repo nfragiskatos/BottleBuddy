@@ -8,10 +8,10 @@ import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
 import com.nicholasfragiskatos.feedme.utils.DateUtils
+import com.nicholasfragiskatos.feedme.utils.DispatcherProvider
 import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditScreenViewModel @Inject constructor(
     private val repository: FeedingRepository,
+    private val dispatcherProvider: DispatcherProvider,
     preferenceManager: PreferenceManager,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -60,7 +61,7 @@ class AddEditScreenViewModel @Inject constructor(
         _currentFeedingId.value = feedingId ?: 0L
 
         if (feedingId != null && !isAdd) {
-            viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch(dispatcherProvider.io) {
                 repository.getFeedingById(feedingId)?.let { feeding ->
                     _notes.value = feeding.notes
                     _quantity.value = feeding.quantity.toString()
@@ -87,7 +88,7 @@ class AddEditScreenViewModel @Inject constructor(
         displayUnit: UnitOfMeasurement = UnitOfMeasurement.MILLILITER,
         onSuccess: (String?) -> Unit = {}
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcherProvider.io) {
             var summary: String? = null
             val quantityNumeric = quantity.value.toDouble()
 
@@ -138,7 +139,7 @@ class AddEditScreenViewModel @Inject constructor(
                 notes = notes.value,
             )
             repository.saveFeeding(toSave)
-            withContext(Dispatchers.Main) {
+            withContext(dispatcherProvider.main) {
                 onSuccess(summary)
             }
         }
