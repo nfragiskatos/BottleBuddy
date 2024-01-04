@@ -43,7 +43,7 @@ class ReportGeneratorImpl @Inject constructor(
         val normalizedQuantityDisplay = UnitUtils.format(normalizedQuantity, displayUnit)
 
         val sb =
-            StringBuilder(DateUtils.getFormattedDateWithTime(feeding.date, is24HourFormat))
+            StringBuilder(DateFormatter.getFormattedDateWithTime(feeding.date, is24HourFormat))
         sb.append("\nThis Feeding: ${normalizedQuantityDisplay}${displayUnit.abbreviation}")
         sb.append("\nDay Total: $dayTotalDisplay${displayUnit.abbreviation} ($alternateDayTotalDisplay${alternateDisplayUnit.abbreviation})")
 
@@ -65,7 +65,7 @@ class ReportGeneratorImpl @Inject constructor(
 
         return if (feedings.isNotEmpty()) {
             var dayTotal = 0.0
-            val sb = StringBuilder("Summary for ${DateUtils.getFormattedDate(date)}\n")
+            val sb = StringBuilder("Summary for ${DateFormatter.getFormattedDate(date)}\n")
             for (index in feedings.indices.reversed()) {
                 val feeding = feedings[index]
                 val quantity = UnitUtils.convertMeasurement(
@@ -77,7 +77,7 @@ class ReportGeneratorImpl @Inject constructor(
 
                 dayTotal += quantity
 
-                val formattedDate = DateUtils.getFormattedTime(feeding.date, is24HourFormat)
+                val formattedDate = DateFormatter.getFormattedTime(feeding.date, is24HourFormat)
                 sb.append("\n$formattedDate - $quantityDisplay${displayUnit.abbreviation}")
             }
             sb.append("\n------------")

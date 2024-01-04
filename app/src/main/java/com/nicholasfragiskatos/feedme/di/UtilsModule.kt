@@ -1,5 +1,7 @@
 package com.nicholasfragiskatos.feedme.di
 
+import com.nicholasfragiskatos.feedme.utils.DateConverter
+import com.nicholasfragiskatos.feedme.utils.DateConverterImpl
 import com.nicholasfragiskatos.feedme.utils.DefaultDispatcherProvider
 import com.nicholasfragiskatos.feedme.utils.DispatcherProvider
 import com.nicholasfragiskatos.feedme.utils.PreferenceManager
@@ -23,4 +25,7 @@ abstract class UtilsModule {
 
     @Binds
     abstract fun bindReportGenerator(reportGeneratorImpl: ReportGeneratorImpl): ReportGenerator
+
+    @Binds
+    abstract fun bindDateConverter(dateConverterImpl: DateConverterImpl): DateConverter
 }

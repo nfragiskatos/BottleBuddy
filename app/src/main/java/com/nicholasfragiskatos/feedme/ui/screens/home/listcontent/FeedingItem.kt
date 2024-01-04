@@ -36,7 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
-import com.nicholasfragiskatos.feedme.utils.DateUtils
+import com.nicholasfragiskatos.feedme.utils.DateFormatter
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 
 @Composable
@@ -103,7 +103,7 @@ fun FeedingItem(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            text = DateUtils.getFormattedTime(
+                            text = DateFormatter.getFormattedTime(
                                 feeding.date,
                                 DateFormat.is24HourFormat(context)
                             ),

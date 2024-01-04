@@ -19,12 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nicholasfragiskatos.feedme.utils.DateUtils
+import com.nicholasfragiskatos.feedme.utils.DateFormatter
 import java.time.LocalDateTime
 
 @Composable
 fun Header(date: LocalDateTime, dayTotal: String, isLoading: Boolean = false, onShare: () -> Unit) {
-    val formattedDate = DateUtils.getFormattedDate(date)
+    val formattedDate = DateFormatter.getFormattedDate(date)
 
     Column(
         modifier = Modifier

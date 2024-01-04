@@ -8,7 +8,7 @@ import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
 import com.nicholasfragiskatos.feedme.ui.screens.UiState
-import com.nicholasfragiskatos.feedme.utils.DateUtils
+import com.nicholasfragiskatos.feedme.utils.DateConverter
 import com.nicholasfragiskatos.feedme.utils.DispatcherProvider
 import com.nicholasfragiskatos.feedme.utils.PreferenceManager
 import com.nicholasfragiskatos.feedme.utils.ReportGenerator
@@ -32,13 +32,14 @@ class FeedingListScreenViewModel @Inject constructor(
     private val repository: FeedingRepository,
     private val dispatcherProvider: DispatcherProvider,
     private val reportGenerator: ReportGenerator,
+    private val dateConverter: DateConverter,
     preferenceManager: PreferenceManager,
 ) : ViewModel() {
 
     val groupState: StateFlow<UiState<Map<LocalDateTime, List<Feeding>>>> =
         repository.getFeedings().map {
             val groupBy = it.groupBy { feeding ->
-                DateUtils.convertToLocalDate(feeding.date).atStartOfDay()
+                dateConverter.convertToLocalDate(feeding.date).atStartOfDay()
             }
             UiState(groupBy, false)
         }.flowOn(dispatcherProvider.io).stateIn(
@@ -116,7 +117,7 @@ class FeedingListScreenViewModel @Inject constructor(
         viewModelScope.launch(dispatcherProvider.default) {
             _daySummaryState.value = _daySummaryState.value.copy(date = date, loading = true)
             val summary = reportGenerator.generateDaySummary(
-                DateUtils.convertToDate(date),
+                dateConverter.convertToDate(date),
                 displayUnit,
                 is24HourFormat,
             )

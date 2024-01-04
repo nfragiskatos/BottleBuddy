@@ -7,7 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import com.nicholasfragiskatos.feedme.utils.DateUtils
+import com.nicholasfragiskatos.feedme.utils.DateFormatter
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,7 +25,7 @@ fun FeedingDatePickerDialog(
             TextButton(
                 onClick = {
                     val selectedDate =
-                        DateUtils.convertUtcToLocalDate(datePickerState.selectedDateMillis!!)
+                        DateFormatter.convertUtcToLocalDate(datePickerState.selectedDateMillis!!)
                             .apply {
                                 hours = date.hours
                                 minutes = date.minutes
