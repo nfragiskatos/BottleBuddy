@@ -19,7 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.nicholasfragiskatos.feedme.utils.DateFormatter
+import com.nicholasfragiskatos.feedme.utils.dates.DateFormatter
 import java.time.LocalDateTime
 
 @Composable

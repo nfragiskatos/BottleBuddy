@@ -8,11 +8,11 @@ import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
 import com.nicholasfragiskatos.feedme.ui.screens.UiState
-import com.nicholasfragiskatos.feedme.utils.DateConverter
-import com.nicholasfragiskatos.feedme.utils.DispatcherProvider
-import com.nicholasfragiskatos.feedme.utils.PreferenceManager
-import com.nicholasfragiskatos.feedme.utils.ReportGenerator
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
+import com.nicholasfragiskatos.feedme.utils.dates.DateConverter
+import com.nicholasfragiskatos.feedme.utils.dispatchers.DispatcherProvider
+import com.nicholasfragiskatos.feedme.utils.preferences.PreferenceManager
+import com.nicholasfragiskatos.feedme.utils.reports.ReportGenerator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

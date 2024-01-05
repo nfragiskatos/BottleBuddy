@@ -5,10 +5,10 @@ import com.google.common.truth.Truth.assertThat
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FakeFeedingRepository
-import com.nicholasfragiskatos.feedme.utils.DateConverterImpl
 import com.nicholasfragiskatos.feedme.utils.FakePreferenceManager
 import com.nicholasfragiskatos.feedme.utils.FakeReportGenerator
 import com.nicholasfragiskatos.feedme.utils.TestDispatcherProvider
+import com.nicholasfragiskatos.feedme.utils.dates.DateConverterImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect

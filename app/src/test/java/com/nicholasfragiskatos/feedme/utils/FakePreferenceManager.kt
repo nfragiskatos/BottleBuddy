@@ -2,6 +2,7 @@ package com.nicholasfragiskatos.feedme.utils
 
 import androidx.datastore.preferences.core.Preferences
 import com.nicholasfragiskatos.feedme.domain.model.FeedMePreferences
+import com.nicholasfragiskatos.feedme.utils.preferences.PreferenceManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 

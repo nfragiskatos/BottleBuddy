@@ -36,8 +36,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
-import com.nicholasfragiskatos.feedme.utils.DateFormatter
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
+import com.nicholasfragiskatos.feedme.utils.dates.DateFormatter
 
 @Composable
 fun FeedingItem(

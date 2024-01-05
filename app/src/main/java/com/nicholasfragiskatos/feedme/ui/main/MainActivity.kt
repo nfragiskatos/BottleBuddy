@@ -32,7 +32,7 @@ import com.nicholasfragiskatos.feedme.ui.screens.NavigationItem
 import com.nicholasfragiskatos.feedme.ui.screens.edit.EditScreen
 import com.nicholasfragiskatos.feedme.ui.screens.home.FeedingListScreen
 import com.nicholasfragiskatos.feedme.ui.theme.FeedMeTheme
-import com.nicholasfragiskatos.feedme.utils.PreferenceManager
+import com.nicholasfragiskatos.feedme.utils.preferences.PreferenceManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

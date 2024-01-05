@@ -43,7 +43,7 @@ import com.nicholasfragiskatos.feedme.R
 import com.nicholasfragiskatos.feedme.ui.common.FeedingDatePickerDialog
 import com.nicholasfragiskatos.feedme.ui.common.FeedingTimePickerDialog
 import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
-import com.nicholasfragiskatos.feedme.utils.DateFormatter
+import com.nicholasfragiskatos.feedme.utils.dates.DateFormatter
 
 @Composable
 fun EditScreen(

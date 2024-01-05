@@ -1,13 +1,13 @@
 package com.nicholasfragiskatos.feedme.di
 
-import com.nicholasfragiskatos.feedme.utils.DateConverter
-import com.nicholasfragiskatos.feedme.utils.DateConverterImpl
-import com.nicholasfragiskatos.feedme.utils.DefaultDispatcherProvider
-import com.nicholasfragiskatos.feedme.utils.DispatcherProvider
-import com.nicholasfragiskatos.feedme.utils.PreferenceManager
-import com.nicholasfragiskatos.feedme.utils.PreferenceManagerImpl
-import com.nicholasfragiskatos.feedme.utils.ReportGenerator
-import com.nicholasfragiskatos.feedme.utils.ReportGeneratorImpl
+import com.nicholasfragiskatos.feedme.utils.dates.DateConverter
+import com.nicholasfragiskatos.feedme.utils.dates.DateConverterImpl
+import com.nicholasfragiskatos.feedme.utils.dispatchers.DefaultDispatcherProvider
+import com.nicholasfragiskatos.feedme.utils.dispatchers.DispatcherProvider
+import com.nicholasfragiskatos.feedme.utils.preferences.PreferenceManager
+import com.nicholasfragiskatos.feedme.utils.preferences.PreferenceManagerImpl
+import com.nicholasfragiskatos.feedme.utils.reports.ReportGenerator
+import com.nicholasfragiskatos.feedme.utils.reports.ReportGeneratorImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

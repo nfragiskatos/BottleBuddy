@@ -2,6 +2,7 @@ package com.nicholasfragiskatos.feedme.utils
 
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
+import com.nicholasfragiskatos.feedme.utils.reports.ReportGenerator
 import java.util.Date
 
 class FakeReportGenerator : ReportGenerator {

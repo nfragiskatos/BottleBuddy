@@ -1,4 +1,4 @@
-package com.nicholasfragiskatos.feedme.utils
+package com.nicholasfragiskatos.feedme.utils.dates
 
 import java.time.LocalDate
 import java.time.LocalDateTime

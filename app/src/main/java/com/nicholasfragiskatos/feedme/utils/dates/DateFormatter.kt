@@ -1,4 +1,4 @@
-package com.nicholasfragiskatos.feedme.utils
+package com.nicholasfragiskatos.feedme.utils.dates
 
 import android.icu.text.DateFormat
 import android.icu.util.Calendar

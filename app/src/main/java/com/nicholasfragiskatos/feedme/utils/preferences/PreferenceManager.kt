@@ -1,4 +1,4 @@
-package com.nicholasfragiskatos.feedme.utils
+package com.nicholasfragiskatos.feedme.utils.preferences
 
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey

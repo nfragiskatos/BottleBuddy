@@ -1,8 +1,10 @@
-package com.nicholasfragiskatos.feedme.utils
+package com.nicholasfragiskatos.feedme.utils.reports
 
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
+import com.nicholasfragiskatos.feedme.utils.UnitUtils
+import com.nicholasfragiskatos.feedme.utils.dates.DateFormatter
 import java.util.Date
 import javax.inject.Inject
 

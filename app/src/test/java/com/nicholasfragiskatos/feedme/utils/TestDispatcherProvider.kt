@@ -1,5 +1,6 @@
 package com.nicholasfragiskatos.feedme.utils
 
+import com.nicholasfragiskatos.feedme.utils.dispatchers.DispatcherProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

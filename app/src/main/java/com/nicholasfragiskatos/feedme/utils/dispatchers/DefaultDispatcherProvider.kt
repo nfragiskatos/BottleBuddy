@@ -1,4 +1,4 @@
-package com.nicholasfragiskatos.feedme.utils
+package com.nicholasfragiskatos.feedme.utils.dispatchers
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

@@ -7,7 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import com.nicholasfragiskatos.feedme.utils.DateFormatter
+import com.nicholasfragiskatos.feedme.utils.dates.DateFormatter
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
