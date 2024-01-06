@@ -6,7 +6,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
-import com.nicholasfragiskatos.feedme.ui.theme.FeedMeTheme
 import org.junit.Rule
 import org.junit.Test
 
@@ -16,15 +15,44 @@ class UnitSelectorTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun unitSelector_selectUnitParameter() {
+    fun unitSelector_radioButtonsExist() {
         composeTestRule.setContent {
-            FeedMeTheme {
-                UnitSelector(selectedUnit = UnitOfMeasurement.OUNCE, onSelect = {})
-            }
+            UnitSelector(selectedUnit = UnitOfMeasurement.MILLILITER, onSelect = {})
         }
 
         composeTestRule
             .onNodeWithText(UnitOfMeasurement.OUNCE.abbreviation, ignoreCase = true)
+            .assertExists()
+
+        composeTestRule
+            .onNodeWithText(UnitOfMeasurement.MILLILITER.abbreviation, ignoreCase = true)
+            .assertExists()
+
+    }
+
+    @Test
+    fun unitSelector_selectedUnitParameterOunce() {
+        composeTestRule.setContent {
+
+            UnitSelector(selectedUnit = UnitOfMeasurement.OUNCE, onSelect = {})
+
+        }
+
+        composeTestRule
+            .onNodeWithText(UnitOfMeasurement.OUNCE.abbreviation, ignoreCase = true)
+            .assertIsSelected()
+    }
+
+    @Test
+    fun unitSelector_selectedUnitParameterMilliliter() {
+        composeTestRule.setContent {
+
+            UnitSelector(selectedUnit = UnitOfMeasurement.MILLILITER, onSelect = {})
+
+        }
+
+        composeTestRule
+            .onNodeWithText(UnitOfMeasurement.MILLILITER.abbreviation, ignoreCase = true)
             .assertIsSelected()
     }
 
