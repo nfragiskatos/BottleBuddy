@@ -8,16 +8,16 @@
       <entry key="app">
         <State />
       </entry>
-      <entry key="goalPreferenceWithValue()">
-        <State />
-      </entry>
-      <entry key="preferenceManager_NonExistingGoalPreference()">
+      <entry key="preferenceManager_getPreferences()">
         <State />
       </entry>
       <entry key="preferenceManager_readForNonExistingDataStore()">
         <State />
       </entry>
-      <entry key="unitPreferenceWithValue()">
+      <entry key="preferenceManager_writeAndReadForNonExistingUnitPreference()">
+        <State />
+      </entry>
+      <entry key="unitSelectorTest()">
         <State />
       </entry>
     </value>
