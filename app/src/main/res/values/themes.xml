@@ -6,6 +6,7 @@
     <style name="Theme.FeedMe.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/theme_background</item>
         <item name="windowSplashScreenAnimationDuration">500</item>
+        <item name="postSplashScreenTheme">@style/Theme.FeedMe</item>
 
     </style>
 </resources>
