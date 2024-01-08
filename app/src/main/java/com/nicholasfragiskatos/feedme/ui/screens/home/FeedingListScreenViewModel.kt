@@ -33,7 +33,7 @@ class FeedingListScreenViewModel @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
     private val reportGenerator: ReportGenerator,
     private val dateConverter: DateConverter,
-    preferenceManager: PreferenceManager,
+    private val preferenceManager: PreferenceManager,
 ) : ViewModel() {
 
     val groupState: StateFlow<UiState<Map<LocalDateTime, List<Feeding>>>> =
@@ -127,6 +127,23 @@ class FeedingListScreenViewModel @Inject constructor(
             withContext(dispatcherProvider.main) {
                 onSuccess(summary)
             }
+        }
+    }
+
+    fun writePreferences(goal: String, goalUnit: UnitOfMeasurement, displayUnit: UnitOfMeasurement) {
+        viewModelScope.launch(dispatcherProvider.io) {
+            preferenceManager.writeData(
+                PreferenceManager.GOAL_KEY_DATA_STORE,
+                goal
+            )
+            preferenceManager.writeData(
+                PreferenceManager.UNIT_KEY_DATA_STORE,
+                goalUnit.name
+            )
+            preferenceManager.writeData(
+                PreferenceManager.PREFERRED_UNIT_KEY_DATA_STORE,
+                displayUnit.name
+            )
         }
     }
 }

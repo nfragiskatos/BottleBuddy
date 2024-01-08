@@ -4,6 +4,7 @@ import android.content.Intent
 import android.text.format.DateFormat
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -43,6 +45,7 @@ import com.nicholasfragiskatos.feedme.R
 import com.nicholasfragiskatos.feedme.ui.common.FeedingDatePickerDialog
 import com.nicholasfragiskatos.feedme.ui.common.FeedingTimePickerDialog
 import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
+import com.nicholasfragiskatos.feedme.ui.main.TopAppBar
 import com.nicholasfragiskatos.feedme.utils.dates.DateFormatter
 
 @Composable
@@ -69,182 +72,211 @@ fun EditScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
 
-    if (showDatePicker) {
-        FeedingDatePickerDialog(date = date, onDismiss = { showDatePicker = false }) {
-            vm.onEvent(AddEditFeedingEvent.ChangeDate(it))
-            showDatePicker = false
-        }
-    }
-
-    if (showTimePicker) {
-        FeedingTimePickerDialog(date = date, onDismiss = { showTimePicker = false }) {
-            vm.onEvent(AddEditFeedingEvent.ChangeDate(it))
-            showTimePicker = false
-        }
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.9f),
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = formattedDate,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = {
-                    Row {
-                        IconButton(onClick = {
-                            showDatePicker = true
-                        }) {
-                            Icon(
-                                modifier = Modifier.size(64.dp),
-                                imageVector = Icons.Default.DateRange,
-                                contentDescription = "calendar",
-                            )
-                        }
-
-                        IconButton(onClick = {
-                            showTimePicker = true
-                        }) {
-                            Icon(
-                                modifier = Modifier.size(64.dp),
-                                painter = painterResource(id = R.drawable.time_24),
-                                contentDescription = "time",
-                            )
-                        }
-                    }
-                },
-            )
-
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = quantity,
-                onValueChange = remember(vm) {
-                    {
-                        vm.onEvent(AddEditFeedingEvent.ChangeQuantity(it))
-                    }
-                },
-                label = { Text(text = "Volume") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                singleLine = true,
-            )
-
-            UnitSelector(
-                modifier = Modifier.fillMaxWidth(),
-                selectedUnit = units,
-                onSelect = remember(vm) {
-                    { unit ->
-                        vm.onEvent(AddEditFeedingEvent.ChangeUnits(unit))
-                    }
-                },
-            )
-
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = notes,
-                onValueChange = remember(vm) {
-                    {
-                        vm.onEvent(AddEditFeedingEvent.ChangeNote(it))
-                    }
-                },
-                label = { Text(text = "Notes") },
-            )
-
-            if (vm.isAdd) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                        horizontalAlignment = Alignment.Start,
+    Scaffold(
+        topBar = {
+            TopAppBar(navController = navController,
+                hasBackButton = true,
+                hasSettingsButton = false,
+                hasShareButton = !vm.isAdd,
+                onShareClicked = {
+                    val event = AddEditFeedingEvent.OnShareFeeding(
+                        is24HourFormat = DateFormat.is24HourFormat(context),
+                        displayUnit = preferences.displayUnit
                     ) {
-                        Text(
-                            text = "Share Feeding",
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Text(
-                            text = "Share this feeding with your contacts after saving.",
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, it)
+                        }
+                        val chooser = Intent.createChooser(intent, "Send Feeding via")
+                        context.startActivity(chooser)
                     }
 
-                    Switch(
-                        modifier = Modifier.padding(start = 8.dp),
-                        checked = sendFeeding,
-                        onCheckedChange = { sendFeeding = it },
-                        thumbContent = if (sendFeeding) {
-                            {
-                                Icon(
-                                    imageVector = Icons.Filled.Share,
-                                    contentDescription = "Send Feeding Checkbox",
-                                    modifier = Modifier.size(SwitchDefaults.IconSize),
-                                )
+                    vm.onEvent(event)
+                }
+            )
+        }
+    ) {
+        if (showDatePicker) {
+            FeedingDatePickerDialog(date = date, onDismiss = { showDatePicker = false }) {
+                vm.onEvent(AddEditFeedingEvent.ChangeDate(it))
+                showDatePicker = false
+            }
+        }
+
+        if (showTimePicker) {
+            FeedingTimePickerDialog(date = date, onDismiss = { showTimePicker = false }) {
+                vm.onEvent(AddEditFeedingEvent.ChangeDate(it))
+                showTimePicker = false
+            }
+        }
+
+        Box(modifier = Modifier.padding(it))
+        {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.9f),
+                    verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    TextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = formattedDate,
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = {
+                            Row {
+                                IconButton(onClick = {
+                                    showDatePicker = true
+                                }) {
+                                    Icon(
+                                        modifier = Modifier.size(64.dp),
+                                        imageVector = Icons.Default.DateRange,
+                                        contentDescription = "calendar",
+                                    )
+                                }
+
+                                IconButton(onClick = {
+                                    showTimePicker = true
+                                }) {
+                                    Icon(
+                                        modifier = Modifier.size(64.dp),
+                                        painter = painterResource(id = R.drawable.time_24),
+                                        contentDescription = "time",
+                                    )
+                                }
                             }
-                        } else {
-                            null
                         },
                     )
-                }
-            }
 
-            Button(
-                onClick = remember(vm) {
-                    {
-                        vm.saveFeeding(
-                            generateSummary = sendFeeding,
-                            is24HourFormat = DateFormat.is24HourFormat(context),
-                            displayUnit = preferences.displayUnit,
-                        ) { summary ->
-                            if (summary != null && vm.isAdd) {
-                                val intent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(Intent.EXTRA_TEXT, summary)
-                                }
-                                val chooser = Intent.createChooser(intent, "Send Feeding via")
-                                context.startActivity(chooser)
+                    TextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = quantity,
+                        onValueChange = remember(vm) {
+                            {
+                                vm.onEvent(AddEditFeedingEvent.ChangeQuantity(it))
                             }
-                            navController.navigateUp()
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = quantity.isNotBlank(),
-            ) {
-                val label = if (vm.isAdd) "Add" else "Save"
-                Text(text = label)
-            }
-        }
+                        },
+                        label = { Text(text = "Volume") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                    )
 
-        if (!vm.isAdd) {
-            TextButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.End),
-                onClick = remember(vm) {
-                    {
-                        vm.deleteFeeding {
-                            navController.navigateUp()
+                    UnitSelector(
+                        modifier = Modifier.fillMaxWidth(),
+                        selectedUnit = units,
+                        onSelect = remember(vm) {
+                            { unit ->
+                                vm.onEvent(AddEditFeedingEvent.ChangeUnits(unit))
+                            }
+                        },
+                    )
+
+                    TextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = notes,
+                        onValueChange = remember(vm) {
+                            {
+                                vm.onEvent(AddEditFeedingEvent.ChangeNote(it))
+                            }
+                        },
+                        label = { Text(text = "Notes") },
+                    )
+
+                    if (vm.isAdd) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+
+                            ) {
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                                horizontalAlignment = Alignment.Start,
+                            ) {
+                                Text(
+                                    text = "Share Feeding",
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
+                                Text(
+                                    text = "Share this feeding with your contacts after saving.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
+
+                            Switch(
+                                modifier = Modifier.padding(start = 8.dp),
+                                checked = sendFeeding,
+                                onCheckedChange = { sendFeeding = it },
+                                thumbContent = if (sendFeeding) {
+                                    {
+                                        Icon(
+                                            imageVector = Icons.Filled.Share,
+                                            contentDescription = "Send Feeding Checkbox",
+                                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                                        )
+                                    }
+                                } else {
+                                    null
+                                },
+                            )
                         }
                     }
-                },
-            ) {
-                Text(
-                    text = "Delete",
-                    style = MaterialTheme.typography.labelLarge,
-                )
+
+                    Button(
+                        onClick = remember(vm) {
+                            {
+                                vm.saveFeeding(
+                                    generateSummary = sendFeeding,
+                                    is24HourFormat = DateFormat.is24HourFormat(context),
+                                    displayUnit = preferences.displayUnit,
+                                ) { summary ->
+                                    if (summary != null && vm.isAdd) {
+                                        val intent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(Intent.EXTRA_TEXT, summary)
+                                        }
+                                        val chooser =
+                                            Intent.createChooser(intent, "Send Feeding via")
+                                        context.startActivity(chooser)
+                                    }
+                                    navController.navigateUp()
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = quantity.isNotBlank(),
+                    ) {
+                        val label = if (vm.isAdd) "Add" else "Save"
+                        Text(text = label)
+                    }
+                }
+
+                if (!vm.isAdd) {
+                    TextButton(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.End),
+                        onClick = remember(vm) {
+                            {
+                                vm.deleteFeeding {
+                                    navController.navigateUp()
+                                }
+                            }
+                        },
+                    ) {
+                        Text(
+                            text = "Delete",
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    }
+                }
             }
         }
     }

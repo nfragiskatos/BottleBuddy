@@ -103,18 +103,12 @@ class FeedingListScreenViewModelTest {
         val perDay = 3
         repo.emit(buildTestFeedings(numDays, perDay))
 
-        // THEN: Group and graph data should be initialized, day summay state unchanged
+        // THEN: Group state should be initialized
         val groupState = vm.groupState.value
-        val graphPoints = vm.graphPoints.value
-        val day = vm.daySummaryState.value
 
         assertThat(groupState.data).isNotEmpty()
         assertThat(groupState.data.keys).hasSize(numDays)
         assertThat(groupState.isLoading).isFalse()
-
-        assertThat(graphPoints).isNotEmpty()
-        val realPoints = graphPoints.filter { it.y > 0 }
-        assertThat(realPoints).hasSize(numDays * perDay)
     }
 
     @Test

@@ -91,12 +91,11 @@ class AddEditScreenViewModel @Inject constructor(
     ) {
         viewModelScope.launch(dispatcherProvider.io) {
             var summary: String? = null
-            val quantityNumeric = quantity.value.toDouble()
 
             val toSave = Feeding(
                 id = _currentFeedingId.value,
                 date = date.value,
-                quantity = quantityNumeric,
+                quantity = quantity.value.toDouble(),
                 unit = units.value,
                 notes = notes.value,
             )
@@ -120,6 +119,27 @@ class AddEditScreenViewModel @Inject constructor(
         }
     }
 
+    private fun onShareFeeding(
+        is24HourFormat: Boolean = false,
+        displayUnit: UnitOfMeasurement = UnitOfMeasurement.MILLILITER,
+        onSuccess: (String) -> Unit = {}
+    ) {
+        viewModelScope.launch(dispatcherProvider.default) {
+            val toShare = Feeding(
+                id = _currentFeedingId.value,
+                date = date.value,
+                quantity = quantity.value.toDouble(),
+                unit = units.value,
+                notes = notes.value,
+            )
+            val summary = reportGenerator.generateFeedingSummary(toShare, displayUnit, is24HourFormat)
+            withContext(dispatcherProvider.main) {
+                onSuccess(summary)
+            }
+
+        }
+    }
+
     fun onEvent(event: AddEditFeedingEvent) {
         when (event) {
             is AddEditFeedingEvent.ChangeDate -> {
@@ -136,6 +156,14 @@ class AddEditScreenViewModel @Inject constructor(
 
             is AddEditFeedingEvent.ChangeUnits -> {
                 _units.value = event.units
+            }
+
+            is AddEditFeedingEvent.OnShareFeeding -> {
+                onShareFeeding(
+                    is24HourFormat = event.is24HourFormat,
+                    displayUnit = event.displayUnit,
+                    onSuccess = event.onSuccess
+                )
             }
         }
     }

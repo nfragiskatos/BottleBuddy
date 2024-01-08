@@ -3,6 +3,7 @@ package com.nicholasfragiskatos.feedme.ui.main
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -19,8 +20,10 @@ import com.nicholasfragiskatos.feedme.R
 fun TopAppBar(
     navController: NavController,
     hasBackButton: Boolean = false,
-    hasSettingsButton: Boolean = true,
-    onGoalClicked: () -> Unit
+    hasSettingsButton: Boolean = false,
+    hasShareButton: Boolean = false,
+    onShareClicked: () -> Unit = {},
+    onSettingsClicked: () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -32,8 +35,13 @@ fun TopAppBar(
         },
         actions = {
             if (hasSettingsButton) {
-                IconButton(onClick = onGoalClicked) {
+                IconButton(onClick = onSettingsClicked) {
                     Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings")
+                }
+            }
+            if (hasShareButton) {
+                IconButton(onClick = onShareClicked) {
+                    Icon(imageVector = Icons.Default.Share, contentDescription = "Share Feedings")
                 }
             }
         },

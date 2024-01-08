@@ -8,4 +8,6 @@ sealed class AddEditFeedingEvent {
     data class ChangeQuantity(val quantity: String) : AddEditFeedingEvent()
     data class ChangeUnits(val units: UnitOfMeasurement) : AddEditFeedingEvent()
     data class ChangeNote(val notes: String) : AddEditFeedingEvent()
+    data class OnShareFeeding(val is24HourFormat: Boolean, val displayUnit: UnitOfMeasurement, val onSuccess: (summary: String) -> Unit) :
+        AddEditFeedingEvent()
 }
