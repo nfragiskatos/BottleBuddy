@@ -81,6 +81,26 @@ fun FeedingListScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    navController.currentBackStackEntry?.savedStateHandle?.let { savedStateHandle ->
+        val exists = savedStateHandle.remove<Boolean>("ACTION_DELETE_KEY") ?: false
+        if (exists) {
+            scope.launch {
+                val result = snackbarHostState
+                    .showSnackbar(
+                        message = "Feeding Deleted",
+                        actionLabel = "Undo",
+                        duration = SnackbarDuration.Short
+                    )
+                when (result) {
+                    SnackbarResult.Dismissed -> {}
+                    SnackbarResult.ActionPerformed -> {
+                        vm.undoLastDelete()
+                    }
+                }
+            }
+        }
+    }
+
     Scaffold(
         snackbarHost = {
             SnackbarHost (hostState = snackbarHostState)

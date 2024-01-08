@@ -266,6 +266,7 @@ fun EditScreen(
                         onClick = remember(vm) {
                             {
                                 vm.deleteFeeding {
+                                    navController.previousBackStackEntry?.savedStateHandle?.set("ACTION_DELETE_KEY", true)
                                     navController.navigateUp()
                                 }
                             }

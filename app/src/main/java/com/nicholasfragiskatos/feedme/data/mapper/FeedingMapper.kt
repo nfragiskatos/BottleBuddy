@@ -24,18 +24,18 @@ fun Feeding.toFeedingEntity(): FeedingEntity {
     )
 }
 
-fun Feeding.toDeletedFeedingEntity(): DeletedFeedingEntity {
-    return DeletedFeedingEntity(
+fun DeletedFeedingEntity.toFeedingEntity() : FeedingEntity {
+    return FeedingEntity(
         id = id,
         date = date,
+        notes = notes,
         quantity = quantity,
         unit = unit,
-        notes = notes
     )
 }
 
-fun DeletedFeedingEntity.toFeedingEntity() : FeedingEntity {
-    return FeedingEntity(
+fun FeedingEntity.toDeletedFeedingEntity(): DeletedFeedingEntity {
+    return DeletedFeedingEntity(
         id = id,
         date = date,
         notes = notes,

@@ -113,9 +113,11 @@ class AddEditScreenViewModel @Inject constructor(
     }
 
     fun deleteFeeding(onSuccess: () -> Unit = {}) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcherProvider.io) {
             repository.deleteFeeding(Feeding(id = _currentFeedingId.value))
-            onSuccess()
+            withContext(dispatcherProvider.main) {
+                onSuccess()
+            }
         }
     }
 

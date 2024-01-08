@@ -28,8 +28,11 @@ class FeedingRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteFeeding(feeding: Feeding) {
-        deletedFeedingDao.saveDeletedFeeding(feeding.toDeletedFeedingEntity())
-        feedingDao.deleteFeeding(feeding.toFeedingEntity())
+        val toDelete = feedingDao.getFeedingById(feeding.id)
+        toDelete?.let {
+            deletedFeedingDao.saveDeletedFeeding(toDelete.toDeletedFeedingEntity())
+            feedingDao.deleteFeeding(toDelete)
+        }
     }
 
     override fun getFeedings(): Flow<List<Feeding>> {
