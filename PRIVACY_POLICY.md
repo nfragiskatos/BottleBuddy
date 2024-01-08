@@ -13,4 +13,5 @@ This application *does not* contain ads.
 If you discover any security or privacy vulnerabilities, or have any question regarding the application, please send me an email or post a discussion on GitHub.
 
 Nicholas Fragiskatos
+<br>
 nfrag.dev@gmail.com
