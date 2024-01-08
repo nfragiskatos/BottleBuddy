@@ -2,6 +2,7 @@ package com.nicholasfragiskatos.feedme.di
 
 import android.app.Application
 import androidx.room.Room
+import com.nicholasfragiskatos.feedme.data.local.DeletedFeedingDao
 import com.nicholasfragiskatos.feedme.data.local.FeedMeDatabase
 import com.nicholasfragiskatos.feedme.data.local.FeedingDao
 import dagger.Module
@@ -27,4 +28,8 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun providesFeedingDao(db: FeedMeDatabase): FeedingDao = db.feedingDao()
+
+    @Provides
+    @Singleton
+    fun providesDeletedFeedingDao(db: FeedMeDatabase): DeletedFeedingDao = db.deletedFeedingDao()
 }

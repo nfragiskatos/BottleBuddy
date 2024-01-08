@@ -17,4 +17,6 @@ interface FeedingRepository {
     fun getFeedingsForToday(): Flow<List<Feeding>>
 
     suspend fun getFeedingsByDay(date: Date) : List<Feeding>
+
+    suspend fun undoLastDelete() : Long
 }

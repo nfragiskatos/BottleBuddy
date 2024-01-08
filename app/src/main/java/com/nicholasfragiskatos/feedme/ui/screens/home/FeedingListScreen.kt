@@ -26,12 +26,17 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,6 +58,7 @@ import com.nicholasfragiskatos.feedme.ui.screens.home.listcontent.FeedingItem
 import com.nicholasfragiskatos.feedme.ui.screens.home.listcontent.Header
 import com.nicholasfragiskatos.feedme.utils.TransitionStateSaver
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -72,8 +78,13 @@ fun FeedingListScreen(
         MutableTransitionState(true)
     }
     var goalDialogOpen by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost (hostState = snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                 navController = navController,
@@ -220,6 +231,20 @@ fun FeedingListScreen(
                                                 .width(defaultActionSize)
                                                 .fillMaxHeight(),
                                         ) {
+                                            scope.launch {
+                                                val result = snackbarHostState
+                                                    .showSnackbar(
+                                                        message = "Feeding Deleted",
+                                                        actionLabel = "Undo",
+                                                        duration = SnackbarDuration.Short
+                                                    )
+                                                when (result) {
+                                                    SnackbarResult.Dismissed -> {}
+                                                    SnackbarResult.ActionPerformed -> {
+                                                        vm.undoLastDelete()
+                                                    }
+                                                }
+                                            }
                                             vm.deleteFeeding(feeding)
                                         }
                                     }

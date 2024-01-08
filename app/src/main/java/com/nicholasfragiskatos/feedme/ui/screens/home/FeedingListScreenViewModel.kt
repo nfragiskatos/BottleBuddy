@@ -81,7 +81,7 @@ class FeedingListScreenViewModel @Inject constructor(
     val daySummaryState: StateFlow<DaySummaryState> = _daySummaryState.asStateFlow()
 
     fun deleteFeeding(feeding: Feeding) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcherProvider.io) {
             repository.deleteFeeding(feeding)
         }
     }
@@ -144,6 +144,12 @@ class FeedingListScreenViewModel @Inject constructor(
                 PreferenceManager.PREFERRED_UNIT_KEY_DATA_STORE,
                 displayUnit.name
             )
+        }
+    }
+
+    fun undoLastDelete() {
+        viewModelScope.launch(dispatcherProvider.io) {
+            repository.undoLastDelete()
         }
     }
 }
