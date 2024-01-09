@@ -2,7 +2,7 @@
 
 Welcome to the Bottle Buddy app!
 
-Bottle Buddy is an open source Android developed by [Nicholas Fragiskatos](https://www.linkedin.com/in/nicholasfragiskatos/). 
+Bottle Buddy is an open source Android app developed by [Nicholas Fragiskatos](https://www.linkedin.com/in/nicholasfragiskatos/). 
 
 The source code is publicly available on [GitHub](https://github.com/nfragiskatos/BottleBuddy) and lives under the GNU General Public License v3.0.
 
