@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import co.yml.charts.axis.AxisData
-import co.yml.charts.common.extensions.formatToSinglePrecision
 import co.yml.charts.common.model.Point
 import co.yml.charts.ui.linechart.LineChart
 import co.yml.charts.ui.linechart.model.Line
@@ -70,7 +69,7 @@ fun CumulativeGoalGraph(
                 if (preferences.displayUnit == UnitOfMeasurement.MILLILITER) {
                     ((i * yScale) + yMin).roundToInt().toString()
                 } else {
-                    ((i * yScale) + yMin).formatToSinglePrecision()
+                    UnitUtils.format(((i * yScale) + yMin).toDouble(), preferences.displayUnit)
                 }
 
             }
@@ -128,6 +127,19 @@ fun CumulativeGoalGraph(
                         lineType = LineType.SmoothCurve(isDotted = true),
                         color = MaterialTheme.colorScheme.tertiary
                     ),
+                    selectionHighlightPoint = SelectionHighlightPoint(
+                        color = MaterialTheme.colorScheme.tertiary,
+                        drawHighlightLine = {_, _ -> }
+                    ),
+                    selectionHighlightPopUp = SelectionHighlightPopUp(
+                        backgroundColor = MaterialTheme.colorScheme.tertiary,
+                        backgroundStyle = Stroke(2f),
+                        labelColor = MaterialTheme.colorScheme.tertiary,
+                        labelTypeface = Typeface.DEFAULT_BOLD,
+                        popUpLabel = {_,y ->
+                            "Goal: ${UnitUtils.format(normalizedGoal.toDouble(), preferences.displayUnit)}${preferences.displayUnit.abbreviation}"
+                        }
+                    )
                 )
             )
         ),

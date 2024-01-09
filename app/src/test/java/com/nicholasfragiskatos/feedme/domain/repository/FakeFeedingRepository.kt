@@ -28,4 +28,7 @@ class FakeFeedingRepository : FeedingRepository {
     override fun getFeedingsForToday(): Flow<List<Feeding>> = flow
 
     override suspend fun getFeedingsByDay(date: Date): List<Feeding> = feedingList
+    override suspend fun undoLastDelete(): Long {
+        return 1L
+    }
 }

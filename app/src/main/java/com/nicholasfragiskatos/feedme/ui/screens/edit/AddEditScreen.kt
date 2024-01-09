@@ -158,8 +158,8 @@ fun EditScreen(
                         modifier = Modifier.fillMaxWidth(),
                         value = quantity,
                         onValueChange = remember(vm) {
-                            {
-                                vm.onEvent(AddEditFeedingEvent.ChangeQuantity(it))
+                            {newValue ->
+                                vm.onEvent(AddEditFeedingEvent.ChangeQuantity(newValue))
                             }
                         },
                         label = { Text(text = "Volume") },

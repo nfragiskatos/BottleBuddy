@@ -13,12 +13,6 @@ class PreferenceManagerImpl @Inject constructor(
 ) : PreferenceManager {
 
     override fun getPreferences() = dataStore.data.map { preferences ->
-        val goal = try {
-            (preferences[PreferenceManager.GOAL_KEY_DATA_STORE] ?: "0.0").toFloat()
-        } catch (e: Exception) {
-            0f
-        }
-
         val goalUnit = preferences[PreferenceManager.UNIT_KEY_DATA_STORE]?.let {
             try {
                 UnitOfMeasurement.valueOf(it)
@@ -27,6 +21,21 @@ class PreferenceManagerImpl @Inject constructor(
             }
         } ?: UnitOfMeasurement.MILLILITER
 
+        var goalStr = try {
+            preferences[PreferenceManager.GOAL_KEY_DATA_STORE]
+        } catch (e: Exception) {
+            null
+        }
+
+        if (goalStr.isNullOrBlank()) {
+            goalStr = if (goalUnit == UnitOfMeasurement.MILLILITER) "500.0" else "15.0"
+        }
+
+        val goal = try {
+            goalStr.toFloat()
+        } catch (e: Exception) {
+            if (goalUnit == UnitOfMeasurement.MILLILITER) 500.0f else 15.0f
+        }
 
         val displayUnit = preferences[PreferenceManager.PREFERRED_UNIT_KEY_DATA_STORE]?.let {
             try {

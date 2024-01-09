@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.ui.common.UnitSelector
+import com.nicholasfragiskatos.feedme.utils.UnitUtils
 
 
 @Composable
@@ -69,7 +70,7 @@ fun SettingsDialog(
                         modifier = Modifier.fillMaxWidth(),
                         value = text,
                         onValueChange = {
-                            text = it
+                            text = UnitUtils.sanitizeDecimalInput(it, 2)
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Decimal
