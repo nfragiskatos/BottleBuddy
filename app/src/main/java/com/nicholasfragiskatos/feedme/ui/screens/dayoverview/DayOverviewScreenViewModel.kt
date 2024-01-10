@@ -73,7 +73,7 @@ class DayOverviewScreenViewModel @Inject constructor(
             )
 
     val smallestFeeding: StateFlow<Double> =
-        feedingsForDay.combine(preferences) {feedings, pref ->
+        feedingsForDay.combine(preferences) { feedings, pref ->
             feedings.minOf { feeding ->
                 UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, pref.displayUnit)
             }
@@ -85,8 +85,8 @@ class DayOverviewScreenViewModel @Inject constructor(
             )
 
     val averageFeeding: StateFlow<Double> =
-        feedingsForDay.combine(preferences){feedings, pref ->
-            feedings.map {feeding ->
+        feedingsForDay.combine(preferences) { feedings, pref ->
+            feedings.map { feeding ->
                 UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, pref.displayUnit)
             }.average()
         }.flowOn(dispatcherProvider.default)
@@ -96,6 +96,48 @@ class DayOverviewScreenViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000)
             )
 
+    val perHour: StateFlow<Double> =
+        feedingsForDay.combine(preferences) { feedings, pref ->
+            var sum = 0.0
+            var start = feedings.first().date
+            var end = start
+            feedings.forEach { feeding ->
+                sum += UnitUtils.convertMeasurement(
+                    feeding.quantity,
+                    feeding.unit,
+                    pref.displayUnit
+                )
+                if (feeding.date < start) {
+                    start = feeding.date
+                }
+                if (feeding.date > end) {
+                    end = feeding.date
+                }
+            }
+            val hours = (end.time - start.time) / 3_600_000.0
+            sum / hours
+        }.flowOn(dispatcherProvider.default)
+            .stateIn(
+                scope = viewModelScope,
+                initialValue = 0.0,
+                started = SharingStarted.WhileSubscribed(5000)
+            )
+
+    val total: StateFlow<Double> =
+        feedingsForDay.combine(preferences) { feedings, pref ->
+            feedings.sumOf { feeding ->
+                UnitUtils.convertMeasurement(
+                    feeding.quantity,
+                    feeding.unit,
+                    pref.displayUnit
+                )
+            }
+        }.flowOn(dispatcherProvider.default)
+            .stateIn(
+                scope = viewModelScope,
+                initialValue = 0.0,
+                started = SharingStarted.WhileSubscribed(5000)
+            )
 
     init {
         val timestamp = savedStateHandle.get<Long>("timestamp")
