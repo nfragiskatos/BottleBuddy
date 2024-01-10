@@ -10,4 +10,10 @@ sealed class NavigationItem(val route: String, @StringRes val resourceId: Int) {
             return "edit/$feedingId"
         }
     }
+
+    object DayOverview : NavigationItem("day_overview", R.string.day_overview_screen_title) {
+        fun buildRoute(timestamp: Long): String {
+            return "day_overview/$timestamp"
+        }
+    }
 }

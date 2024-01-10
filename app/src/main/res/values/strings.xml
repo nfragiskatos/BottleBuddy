@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Bottle Buddy</string>
-    <string name="home_screen_title">Home SCREEN</string>
+    <string name="home_screen_title">Home</string>
     <string name="edit_screen_title">Edit</string>
+    <string name="day_overview_screen_title">Day Overview</string>
 </resources>
