@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -56,7 +55,8 @@ fun DayOverviewScreen(
                 navController = navController,
                 hasBackButton = true,
                 hasSettingsButton = false,
-                hasShareButton = false
+                hasShareButton = false,
+                title = DateFormatter.getFormattedDate(date)
             )
         }
     ) {
@@ -65,18 +65,6 @@ fun DayOverviewScreen(
                 .fillMaxSize()
                 .padding(it)
         ) {
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = DateFormatter.getFormattedDate(date),
-                    style = MaterialTheme.typography.headlineLarge
-                )
-            }
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End,
@@ -90,7 +78,6 @@ fun DayOverviewScreen(
             }
 
             AnimatedVisibility(visibleState = animationState) {
-                // TODO: Figure out why y-axis is off (being based on the goal line even when it's turned off)
                 CumulativeGoalGraph(
                     pointsData = graphPoints,
                     preferences = preferences,

@@ -22,13 +22,14 @@ fun TopAppBar(
     hasBackButton: Boolean = false,
     hasSettingsButton: Boolean = false,
     hasShareButton: Boolean = false,
+    title: String? = null,
     onShareClicked: () -> Unit = {},
     onSettingsClicked: () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = stringResource(id = R.string.app_name),
+                text = title ?: stringResource(id = R.string.app_name),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

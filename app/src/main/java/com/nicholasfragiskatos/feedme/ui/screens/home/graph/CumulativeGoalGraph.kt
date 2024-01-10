@@ -61,7 +61,8 @@ fun CumulativeGoalGraph(
         .steps(steps)
         .labelData { i ->
             val yMin = 0f
-            val yMax = maxOf(normalizedGoal, pointsData.maxOf { it.y })
+            val dataMax = pointsData.maxOf { it.y }
+            val yMax = if (showGoalLine) maxOf(normalizedGoal, dataMax) else dataMax
 
             val yScale = (yMax - yMin) / steps
             if (i == 0) {
