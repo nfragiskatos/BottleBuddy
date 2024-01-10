@@ -1,6 +1,7 @@
 package com.nicholasfragiskatos.feedme.ui.screens.dayoverview
 
 
+import android.text.format.DateUtils
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -96,11 +97,24 @@ class DayOverviewScreenViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000)
             )
 
+    val perFeeding: StateFlow<Double> =
+        feedingsForDay.combine(preferences) {feedings, pref ->
+            val sum = feedings.sumOf { feeding ->
+                UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, pref.displayUnit)
+            }
+            if (feedings.isEmpty()) 0.0 else sum / feedings.size
+        }.flowOn(dispatcherProvider.default)
+            .stateIn(
+                scope = viewModelScope,
+                initialValue = 0.0,
+                started = SharingStarted.WhileSubscribed(5000)
+            )
+
     val perHour: StateFlow<Double> =
         feedingsForDay.combine(preferences) { feedings, pref ->
             var sum = 0.0
             var start = feedings.first().date
-            var end = start
+            var end = Date(start.time)
             feedings.forEach { feeding ->
                 sum += UnitUtils.convertMeasurement(
                     feeding.quantity,
@@ -112,6 +126,15 @@ class DayOverviewScreenViewModel @Inject constructor(
                 }
                 if (feeding.date > end) {
                     end = feeding.date
+                }
+            }
+            // If there is only one data point, and it's a previous day,
+            // then just assume the end time is the end of the day.
+            if (feedings.size == 1 && !DateUtils.isToday(start.time)) {
+                end.apply {
+                    hours = 23
+                    minutes = 59
+                    seconds = 59
                 }
             }
             val hours = (end.time - start.time) / 3_600_000.0
