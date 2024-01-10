@@ -29,11 +29,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nicholasfragiskatos.feedme.ui.main.TopAppBar
-import com.nicholasfragiskatos.feedme.ui.screens.dayoverview.statistics.StatisticRow
+import com.nicholasfragiskatos.feedme.ui.screens.dayoverview.statistics.StatisticRowNew
 import com.nicholasfragiskatos.feedme.ui.screens.home.graph.CumulativeGoalGraph
 import com.nicholasfragiskatos.feedme.ui.screens.home.listcontent.FeedingItem
 import com.nicholasfragiskatos.feedme.utils.TransitionStateSaver
-import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import com.nicholasfragiskatos.feedme.utils.dates.DateFormatter
 
 @Composable
@@ -115,43 +114,12 @@ fun DayOverviewScreen(
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    val displayUnit = preferences.displayUnit
-                    StatisticRow(
-                        stat = "Min",
-                        value = UnitUtils.format(smallestFeeding, displayUnit),
-                        unit = displayUnit.abbreviation
-                    )
-                    StatisticRow(
-                        stat = "Max",
-                        value = UnitUtils.format(largestFeeding, preferences.displayUnit),
-                        unit = displayUnit.abbreviation
-                    )
-                    StatisticRow(
-                        stat = "Average",
-                        value = UnitUtils.format(averageFeeding, preferences.displayUnit),
-                        unit = displayUnit.abbreviation
-                    )
-                    StatisticRow(
-                        stat = "Per Feeding",
-                        value = UnitUtils.format(perFeeding, preferences.displayUnit),
-                        unit = displayUnit.abbreviation
-                    )
-                    val displayPerHour = if (perHour == Double.POSITIVE_INFINITY) {
-                        "N/A"
-                    } else {
-                        UnitUtils.format(perHour, preferences.displayUnit)
-                    }
-                    StatisticRow(
-                        stat = "Per Hour",
-                        value = displayPerHour,
-                        unit = displayUnit.abbreviation,
-                        displayUnit = perHour != Double.POSITIVE_INFINITY
-                    )
-                    StatisticRow(
-                        stat = "Total",
-                        value = UnitUtils.format(total, preferences.displayUnit),
-                        unit = displayUnit.abbreviation
-                    )
+                    StatisticRowNew(statistic = smallestFeeding)
+                    StatisticRowNew(statistic = largestFeeding)
+                    StatisticRowNew(statistic = averageFeeding)
+                    StatisticRowNew(statistic = perFeeding)
+                    StatisticRowNew(statistic = perHour)
+                    StatisticRowNew(statistic = total)
                 }
             }
 
