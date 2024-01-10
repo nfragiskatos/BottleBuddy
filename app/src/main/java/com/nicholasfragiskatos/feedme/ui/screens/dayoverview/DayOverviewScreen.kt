@@ -48,6 +48,7 @@ fun DayOverviewScreen(
     val smallestFeeding by vm.smallestFeeding.collectAsStateWithLifecycle()
     val largestFeeding by vm.largestFeeding.collectAsStateWithLifecycle()
     val averageFeeding by vm.averageFeeding.collectAsStateWithLifecycle()
+    val perFeeding by vm.perFeeding.collectAsStateWithLifecycle()
     val perHour by vm.perHour.collectAsStateWithLifecycle()
     val total by vm.total.collectAsStateWithLifecycle()
 
@@ -131,9 +132,20 @@ fun DayOverviewScreen(
                         unit = displayUnit.abbreviation
                     )
                     StatisticRow(
-                        stat = "Per Hour",
-                        value = UnitUtils.format(perHour, preferences.displayUnit),
+                        stat = "Per Feeding",
+                        value = UnitUtils.format(perFeeding, preferences.displayUnit),
                         unit = displayUnit.abbreviation
+                    )
+                    val displayPerHour = if (perHour == Double.POSITIVE_INFINITY) {
+                        "N/A"
+                    } else {
+                        UnitUtils.format(perHour, preferences.displayUnit)
+                    }
+                    StatisticRow(
+                        stat = "Per Hour",
+                        value = displayPerHour,
+                        unit = displayUnit.abbreviation,
+                        displayUnit = perHour != Double.POSITIVE_INFINITY
                     )
                     StatisticRow(
                         stat = "Total",

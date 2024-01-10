@@ -13,7 +13,8 @@ import androidx.compose.ui.Modifier
 fun StatisticRow(
     stat: String,
     value: String,
-    unit: String
+    unit: String,
+    displayUnit: Boolean = true
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -21,8 +22,9 @@ fun StatisticRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = stat, style = MaterialTheme.typography.titleLarge)
+        val display = if (displayUnit) "$value$unit" else value
         Text(
-            text = "$value$unit",
+            text = display,
             style = MaterialTheme.typography.titleMedium
         )
     }
