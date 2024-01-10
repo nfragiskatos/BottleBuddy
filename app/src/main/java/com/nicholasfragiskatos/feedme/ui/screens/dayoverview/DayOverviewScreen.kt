@@ -44,12 +44,7 @@ fun DayOverviewScreen(
     val feedingsForDay by vm.feedingsForDay.collectAsStateWithLifecycle()
     val graphPoints by vm.graphPoints.collectAsStateWithLifecycle()
     val preferences by vm.preferences.collectAsStateWithLifecycle()
-    val smallestFeeding by vm.smallestFeeding.collectAsStateWithLifecycle()
-    val largestFeeding by vm.largestFeeding.collectAsStateWithLifecycle()
-    val averageFeeding by vm.averageFeeding.collectAsStateWithLifecycle()
-    val perFeeding by vm.perFeeding.collectAsStateWithLifecycle()
-    val perHour by vm.perHour.collectAsStateWithLifecycle()
-    val total by vm.total.collectAsStateWithLifecycle()
+    val dayOverviewState by vm.dayOverviewState.collectAsStateWithLifecycle()
 
     val animationState = rememberSaveable(saver = TransitionStateSaver) {
         MutableTransitionState(true)
@@ -114,12 +109,12 @@ fun DayOverviewScreen(
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    StatisticRowNew(statistic = smallestFeeding)
-                    StatisticRowNew(statistic = largestFeeding)
-                    StatisticRowNew(statistic = averageFeeding)
-                    StatisticRowNew(statistic = perFeeding)
-                    StatisticRowNew(statistic = perHour)
-                    StatisticRowNew(statistic = total)
+                    StatisticRowNew(statistic = dayOverviewState.min)
+                    StatisticRowNew(statistic = dayOverviewState.max)
+                    StatisticRowNew(statistic = dayOverviewState.avg)
+                    StatisticRowNew(statistic = dayOverviewState.perFeeding)
+                    StatisticRowNew(statistic = dayOverviewState.perHour)
+                    StatisticRowNew(statistic = dayOverviewState.total)
                 }
             }
 
