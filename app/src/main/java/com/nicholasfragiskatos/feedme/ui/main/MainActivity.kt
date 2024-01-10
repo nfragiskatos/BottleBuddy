@@ -14,10 +14,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nicholasfragiskatos.feedme.ui.screens.NavigationItem
+import com.nicholasfragiskatos.feedme.ui.screens.dayoverview.DayOverviewScreen
 import com.nicholasfragiskatos.feedme.ui.screens.edit.EditScreen
 import com.nicholasfragiskatos.feedme.ui.screens.home.FeedingListScreen
 import com.nicholasfragiskatos.feedme.ui.theme.FeedMeTheme
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Date
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -50,6 +52,17 @@ class MainActivity : ComponentActivity() {
                             ),
                         ) {
                             EditScreen(navController)
+                        }
+                        composable(
+                            route = NavigationItem.DayOverview.route + "/{timestamp}",
+                            arguments = listOf(
+                                navArgument("timestamp") {
+                                    type = NavType.LongType
+                                    defaultValue = Date().time
+                                }
+                            )
+                        ) {
+                            DayOverviewScreen(navController = navController)
                         }
                     }
                 }

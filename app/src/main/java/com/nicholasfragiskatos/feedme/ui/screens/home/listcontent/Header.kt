@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,7 +24,7 @@ import com.nicholasfragiskatos.feedme.utils.dates.DateFormatter
 import java.time.LocalDateTime
 
 @Composable
-fun Header(date: LocalDateTime, dayTotal: String, isLoading: Boolean = false, onShare: () -> Unit) {
+fun Header(date: LocalDateTime, dayTotal: String, isLoading: Boolean = false, onViewDayOverview: () -> Unit, onShare: () -> Unit) {
     val formattedDate = DateFormatter.getFormattedDate(date)
 
     Column(
@@ -56,14 +57,26 @@ fun Header(date: LocalDateTime, dayTotal: String, isLoading: Boolean = false, on
                 )
             }
 
-            IconButton(onClick = onShare, enabled = !isLoading) {
-                Icon(
-                    modifier = Modifier.size(32.dp),
-                    imageVector = Icons.Filled.Share,
-                    contentDescription = "Share Day Summary",
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                IconButton(onClick = onViewDayOverview) {
+                    Icon(
+                        modifier = Modifier.size(32.dp),
+                        imageVector = Icons.Filled.Info,
+                        contentDescription = "View Day Overview"
+                    )
+                }
 
-                )
+                IconButton(onClick = onShare, enabled = !isLoading) {
+                    Icon(
+                        modifier = Modifier.size(32.dp),
+                        imageVector = Icons.Filled.Share,
+                        contentDescription = "Share Day Summary",
+
+                        )
+                }
             }
+
+
         }
         if (isLoading) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())

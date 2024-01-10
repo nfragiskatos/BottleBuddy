@@ -59,6 +59,7 @@ import com.nicholasfragiskatos.feedme.ui.screens.home.listcontent.Header
 import com.nicholasfragiskatos.feedme.utils.TransitionStateSaver
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import kotlinx.coroutines.launch
+import java.time.ZoneId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -191,6 +192,11 @@ fun FeedingListScreen(
                                     )
                                 }${preferences.displayUnit.abbreviation}",
                                 isLoading = daySummaryState.loading && daySummaryState.date == date,
+                                onViewDayOverview = {
+                                    navController.navigate(
+                                        NavigationItem.DayOverview.buildRoute(date.atZone(ZoneId.systemDefault()).toEpochSecond())
+                                    )
+                                }
                             ) {
                                 vm.generateDaySummary(
                                     date,
