@@ -10,6 +10,8 @@ import com.nicholasfragiskatos.feedme.domain.model.FeedMePreferences
 import com.nicholasfragiskatos.feedme.domain.model.Feeding
 import com.nicholasfragiskatos.feedme.domain.model.UnitOfMeasurement
 import com.nicholasfragiskatos.feedme.domain.repository.FeedingRepository
+import com.nicholasfragiskatos.feedme.ui.screens.dayoverview.statistics.Statistic
+import com.nicholasfragiskatos.feedme.ui.screens.dayoverview.statistics.StatisticType
 import com.nicholasfragiskatos.feedme.utils.UnitUtils
 import com.nicholasfragiskatos.feedme.utils.dispatchers.DispatcherProvider
 import com.nicholasfragiskatos.feedme.utils.preferences.PreferenceManager
@@ -61,56 +63,92 @@ class DayOverviewScreenViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000)
             )
 
-    val largestFeeding: StateFlow<Double> =
+    val largestFeeding: StateFlow<Statistic> =
         feedingsForDay.combine(preferences) { feedings, pref ->
-            feedings.maxOf { feeding ->
+            val max = feedings.maxOf { feeding ->
                 UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, pref.displayUnit)
             }
+            Statistic(
+                value = max,
+                unit = preferences.value.displayUnit,
+                type = StatisticType.MAX
+            )
         }.flowOn(dispatcherProvider.default)
             .stateIn(
                 scope = viewModelScope,
-                initialValue = 0.0,
+                initialValue = Statistic(
+                    value = 0.0,
+                    unit = preferences.value.displayUnit,
+                    type = StatisticType.MAX
+                ),
                 started = SharingStarted.WhileSubscribed(5000)
             )
 
-    val smallestFeeding: StateFlow<Double> =
+    val smallestFeeding: StateFlow<Statistic> =
         feedingsForDay.combine(preferences) { feedings, pref ->
-            feedings.minOf { feeding ->
+            val min = feedings.minOf { feeding ->
                 UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, pref.displayUnit)
             }
+            Statistic(
+                value = min,
+                unit = preferences.value.displayUnit,
+                type = StatisticType.MIN
+            )
         }.flowOn(dispatcherProvider.default)
             .stateIn(
                 scope = viewModelScope,
-                initialValue = 0.0,
+                initialValue = Statistic(
+                    value = 0.0,
+                    unit = preferences.value.displayUnit,
+                    type = StatisticType.MIN
+                ),
                 started = SharingStarted.WhileSubscribed(5000)
             )
 
-    val averageFeeding: StateFlow<Double> =
+    val averageFeeding: StateFlow<Statistic> =
         feedingsForDay.combine(preferences) { feedings, pref ->
-            feedings.map { feeding ->
+            val avg = feedings.map { feeding ->
                 UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, pref.displayUnit)
             }.average()
+            Statistic(
+                value = avg,
+                unit = pref.displayUnit,
+                type = StatisticType.AVG
+            )
         }.flowOn(dispatcherProvider.default)
             .stateIn(
                 scope = viewModelScope,
-                initialValue = 0.0,
+                initialValue = Statistic(
+                    value = 0.0,
+                    unit = preferences.value.displayUnit,
+                    type = StatisticType.AVG
+                ),
                 started = SharingStarted.WhileSubscribed(5000)
             )
 
-    val perFeeding: StateFlow<Double> =
+    val perFeeding: StateFlow<Statistic> =
         feedingsForDay.combine(preferences) {feedings, pref ->
             val sum = feedings.sumOf { feeding ->
                 UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, pref.displayUnit)
             }
-            if (feedings.isEmpty()) 0.0 else sum / feedings.size
+            Statistic(
+                value = if (feedings.isEmpty()) 0.0 else sum / feedings.size,
+                unit = pref.displayUnit,
+                type = StatisticType.PER_FEEDING
+            )
+
         }.flowOn(dispatcherProvider.default)
             .stateIn(
                 scope = viewModelScope,
-                initialValue = 0.0,
+                initialValue = Statistic(
+                    value = 0.0,
+                    unit = preferences.value.displayUnit,
+                    type = StatisticType.PER_FEEDING
+                ),
                 started = SharingStarted.WhileSubscribed(5000)
             )
 
-    val perHour: StateFlow<Double> =
+    val perHour: StateFlow<Statistic> =
         feedingsForDay.combine(preferences) { feedings, pref ->
             var sum = 0.0
             var start = feedings.first().date
@@ -138,27 +176,44 @@ class DayOverviewScreenViewModel @Inject constructor(
                 }
             }
             val hours = (end.time - start.time) / 3_600_000.0
-            sum / hours
+            Statistic(
+                value = sum / hours,
+                unit = pref.displayUnit,
+                type = StatisticType.PER_HOUR
+            )
         }.flowOn(dispatcherProvider.default)
             .stateIn(
                 scope = viewModelScope,
-                initialValue = 0.0,
+                initialValue = Statistic(
+                    value = 0.0,
+                    unit = preferences.value.displayUnit,
+                    type = StatisticType.PER_HOUR
+                ),
                 started = SharingStarted.WhileSubscribed(5000)
             )
 
-    val total: StateFlow<Double> =
+    val total: StateFlow<Statistic> =
         feedingsForDay.combine(preferences) { feedings, pref ->
-            feedings.sumOf { feeding ->
+            val sum = feedings.sumOf { feeding ->
                 UnitUtils.convertMeasurement(
                     feeding.quantity,
                     feeding.unit,
                     pref.displayUnit
                 )
             }
+            Statistic(
+                value = sum,
+                unit = pref.displayUnit,
+                type = StatisticType.Total
+            )
         }.flowOn(dispatcherProvider.default)
             .stateIn(
                 scope = viewModelScope,
-                initialValue = 0.0,
+                initialValue = Statistic(
+                    value = 0.0,
+                    unit = preferences.value.displayUnit,
+                    type = StatisticType.Total
+                ),
                 started = SharingStarted.WhileSubscribed(5000)
             )
 
