@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,7 +61,7 @@ fun Header(date: LocalDateTime, dayTotal: String, isLoading: Boolean = false, on
                 IconButton(onClick = onViewDayOverview) {
                     Icon(
                         modifier = Modifier.size(32.dp),
-                        imageVector = Icons.Filled.Info,
+                        imageVector = Icons.Filled.BarChart,
                         contentDescription = "View Day Overview"
                     )
                 }

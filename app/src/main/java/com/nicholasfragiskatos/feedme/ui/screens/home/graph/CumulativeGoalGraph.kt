@@ -30,6 +30,7 @@ import kotlin.math.roundToInt
 fun CumulativeGoalGraph(
     pointsData: List<Point>,
     preferences: FeedMePreferences,
+    showGoalLine: Boolean = true,
 ) {
     val normalizedGoal = UnitUtils.convertMeasurement(
         preferences.goal.toDouble(),
@@ -79,70 +80,76 @@ fun CumulativeGoalGraph(
         .labelAndAxisLinePadding(20.dp)
         .axisLabelColor(MaterialTheme.colorScheme.onSurfaceVariant)
         .build()
-    val data = LineChartData(
-        linePlotData = LinePlotData(
-            lines = listOf(
-                Line(
-                    dataPoints = pointsData,
-                    lineStyle = LineStyle(
-                        lineType = LineType.SmoothCurve(isDotted = true),
-                        color = MaterialTheme.colorScheme.secondary
-                    ),
-                    shadowUnderLine = ShadowUnderLine(
-                        brush = Brush.verticalGradient(
-                            listOf(
-                                MaterialTheme.colorScheme.primaryContainer,
-                                Color.Transparent
-                            )
-                        ), alpha = 0.3f
-                    ),
-                    selectionHighlightPoint = SelectionHighlightPoint(
-                        color = MaterialTheme.colorScheme.primary
-                    ),
-                    selectionHighlightPopUp = SelectionHighlightPopUp(
-                        backgroundColor = MaterialTheme.colorScheme.primary,
-                        backgroundStyle = Stroke(2f),
-                        labelColor = MaterialTheme.colorScheme.primary,
-                        labelTypeface = Typeface.DEFAULT_BOLD,
-                        popUpLabel = {x, y ->
-                            var hour = (x / 60).toInt()
-                            val minutes = (x % 60).toInt()
-                            val minutesDisplay = if (minutes < 10) "0$minutes" else minutes
-                            var ampm = "am"
-                            if (hour > 12) {
-                                hour -= 12
-                                ampm = "pm"
-                            }
-                            val yVal = UnitUtils.format(pointsData[x.toInt()].y.toDouble(), preferences.displayUnit)// "%.2f".format(pointsData[x.toInt()].y)
-                            "$hour:$minutesDisplay$ampm, y = $yVal${preferences.displayUnit.abbreviation}"
 
-                        }
+    val lines = mutableListOf(
+        Line(
+            dataPoints = pointsData,
+            lineStyle = LineStyle(
+                lineType = LineType.SmoothCurve(isDotted = true),
+                color = MaterialTheme.colorScheme.secondary
+            ),
+            shadowUnderLine = ShadowUnderLine(
+                brush = Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        Color.Transparent
                     )
+                ), alpha = 0.3f
+            ),
+            selectionHighlightPoint = SelectionHighlightPoint(
+                color = MaterialTheme.colorScheme.primary
+            ),
+            selectionHighlightPopUp = SelectionHighlightPopUp(
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                backgroundStyle = Stroke(2f),
+                labelColor = MaterialTheme.colorScheme.primary,
+                labelTypeface = Typeface.DEFAULT_BOLD,
+                popUpLabel = {x, y ->
+                    var hour = (x / 60).toInt()
+                    val minutes = (x % 60).toInt()
+                    val minutesDisplay = if (minutes < 10) "0$minutes" else minutes
+                    var ampm = "am"
+                    if (hour > 12) {
+                        hour -= 12
+                        ampm = "pm"
+                    }
+                    val yVal = UnitUtils.format(pointsData[x.toInt()].y.toDouble(), preferences.displayUnit)// "%.2f".format(pointsData[x.toInt()].y)
+                    "$hour:$minutesDisplay$ampm, y = $yVal${preferences.displayUnit.abbreviation}"
+
+                }
+            )
+        )
+    )
+
+    if (showGoalLine) {
+        lines.add(
+            Line(
+                dataPoints = MutableList(1440) { index ->
+                    Point(index.toFloat(), normalizedGoal)
+                },
+                lineStyle = LineStyle(
+                    lineType = LineType.SmoothCurve(isDotted = true),
+                    color = MaterialTheme.colorScheme.tertiary
                 ),
-                Line(
-                    dataPoints = MutableList(1440) { index ->
-                        Point(index.toFloat(), normalizedGoal)
-                    },
-                    lineStyle = LineStyle(
-                        lineType = LineType.SmoothCurve(isDotted = true),
-                        color = MaterialTheme.colorScheme.tertiary
-                    ),
-                    selectionHighlightPoint = SelectionHighlightPoint(
-                        color = MaterialTheme.colorScheme.tertiary,
-                        drawHighlightLine = {_, _ -> }
-                    ),
-                    selectionHighlightPopUp = SelectionHighlightPopUp(
-                        backgroundColor = MaterialTheme.colorScheme.tertiary,
-                        backgroundStyle = Stroke(2f),
-                        labelColor = MaterialTheme.colorScheme.tertiary,
-                        labelTypeface = Typeface.DEFAULT_BOLD,
-                        popUpLabel = {_,y ->
-                            "Goal: ${UnitUtils.format(normalizedGoal.toDouble(), preferences.displayUnit)}${preferences.displayUnit.abbreviation}"
-                        }
-                    )
+                selectionHighlightPoint = SelectionHighlightPoint(
+                    color = MaterialTheme.colorScheme.tertiary,
+                    drawHighlightLine = {_, _ -> }
+                ),
+                selectionHighlightPopUp = SelectionHighlightPopUp(
+                    backgroundColor = MaterialTheme.colorScheme.tertiary,
+                    backgroundStyle = Stroke(2f),
+                    labelColor = MaterialTheme.colorScheme.tertiary,
+                    labelTypeface = Typeface.DEFAULT_BOLD,
+                    popUpLabel = {_,y ->
+                        "Goal: ${UnitUtils.format(normalizedGoal.toDouble(), preferences.displayUnit)}${preferences.displayUnit.abbreviation}"
+                    }
                 )
             )
-        ),
+        )
+    }
+
+    val data = LineChartData(
+        linePlotData = LinePlotData(lines = lines),
         xAxisData = xAxisData,
         yAxisData = yAxisData,
         backgroundColor = MaterialTheme.colorScheme.surface

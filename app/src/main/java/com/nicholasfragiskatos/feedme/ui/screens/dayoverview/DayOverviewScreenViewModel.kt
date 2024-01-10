@@ -32,6 +32,9 @@ class DayOverviewScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    private val _date: MutableStateFlow<Date> = MutableStateFlow(Date())
+    val date: StateFlow<Date> = _date.asStateFlow()
+
     private val _feedingsForDay: MutableStateFlow<List<Feeding>> = MutableStateFlow(emptyList())
     val feedingsForDay: StateFlow<List<Feeding>> = _feedingsForDay.asStateFlow()
 
@@ -46,7 +49,7 @@ class DayOverviewScreenViewModel @Inject constructor(
     )
 
     val graphPoints: StateFlow<List<Point>> =
-        feedingsForDay.combine(preferences) {feedings, pref ->
+        feedingsForDay.combine(preferences) { feedings, pref ->
             createPoints(feedings, pref.displayUnit)
         }.flowOn(dispatcherProvider.default)
             .stateIn(
@@ -57,12 +60,50 @@ class DayOverviewScreenViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000)
             )
 
+    val largestFeeding: StateFlow<Double> =
+        feedingsForDay.combine(preferences) { feedings, pref ->
+            feedings.maxOf { feeding ->
+                UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, pref.displayUnit)
+            }
+        }.flowOn(dispatcherProvider.default)
+            .stateIn(
+                scope = viewModelScope,
+                initialValue = 0.0,
+                started = SharingStarted.WhileSubscribed(5000)
+            )
+
+    val smallestFeeding: StateFlow<Double> =
+        feedingsForDay.combine(preferences) {feedings, pref ->
+            feedings.minOf { feeding ->
+                UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, pref.displayUnit)
+            }
+        }.flowOn(dispatcherProvider.default)
+            .stateIn(
+                scope = viewModelScope,
+                initialValue = 0.0,
+                started = SharingStarted.WhileSubscribed(5000)
+            )
+
+    val averageFeeding: StateFlow<Double> =
+        feedingsForDay.combine(preferences){feedings, pref ->
+            feedings.map {feeding ->
+                UnitUtils.convertMeasurement(feeding.quantity, feeding.unit, pref.displayUnit)
+            }.average()
+        }.flowOn(dispatcherProvider.default)
+            .stateIn(
+                scope = viewModelScope,
+                initialValue = 0.0,
+                started = SharingStarted.WhileSubscribed(5000)
+            )
+
+
     init {
         val timestamp = savedStateHandle.get<Long>("timestamp")
 
         timestamp?.let {
+            _date.value = Date(it)
             viewModelScope.launch(dispatcherProvider.io) {
-                val feedingsByDay = repository.getFeedingsByDay(Date(it))
+                val feedingsByDay = repository.getFeedingsByDay(date.value)
                 _feedingsForDay.value = feedingsByDay
             }
         }
