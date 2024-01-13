@@ -21,11 +21,16 @@ class ReportGeneratorImpl @Inject constructor(
             if (displayUnit == UnitOfMeasurement.MILLILITER) UnitOfMeasurement.OUNCE else UnitOfMeasurement.MILLILITER
         val feedingsForDay = repository.getFeedingsByDay(feeding.date)
         val feedingsForDayTotal = feedingsForDay.sumOf {
-            UnitUtils.convertMeasurement(
-                it.quantity,
-                it.unit,
-                displayUnit,
-            )
+            // If the feeding is being edited, we don't want to count the value twice
+            if (it.id == feeding.id) {
+                0.0
+            } else {
+                UnitUtils.convertMeasurement(
+                    it.quantity,
+                    it.unit,
+                    displayUnit,
+                )
+            }
         }
 
         val dayTotal = feedingsForDayTotal + UnitUtils.convertMeasurement(
