@@ -13,6 +13,25 @@ Set a daily feeding goal and track your baby's bottle feedings throughout the da
 - View graph of daily progress
 - Send text messages with individual or daily feeding summaries
 
+#### Topics Covered:
+
+<table>
+  <tr>
+    <td>Compose</td>
+    <td>Compose Navigation</td>
+    <td>Coroutines</td>
+    <td>Dagger/Hilt</td>
+    <td>DataStore</td>
+  </tr>
+  <tr>
+    <td>Room</td>
+    <td>Unit/Android Tests</td>
+    <td>MVVM</td>
+    <td>Flow/StateFlows</td>
+    <td>YChart</td>
+  </tr>
+</table>
+
 --- 
 ## Screenshots
 ### Home Screen
